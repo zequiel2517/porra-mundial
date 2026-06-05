@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Porra Mundial 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      background: #0a0f1e;
+      color: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Fondo animado con partículas sutiles ── */
+    .bg {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(37,99,235,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(99,153,34,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 80%, rgba(202,138,4,0.10) 0%, transparent 50%),
+        #0a0f1e;
+    }
+    .estrellas {
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 35% 65%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 45%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 75%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 90%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 65% 55%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(2px 2px at 25% 40%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(2px 2px at 80% 10%, rgba(255,255,255,0.15) 0%, transparent 100%);
+    }
+
+    .contenido {
+      position: relative; z-index: 1;
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1.5rem;
+      min-height: 100vh;
+    }
+
+    /* ── Trofeo / logo ── */
+    .trofeo-wrap {
+      position: relative; margin-bottom: 1.5rem;
+    }
+    .trofeo-glow {
+      position: absolute; inset: -20px;
+      background: radial-gradient(circle, rgba(202,138,4,0.3) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulso 3s ease-in-out infinite;
+    }
+    @keyframes pulso { 0%,100%{opacity:0.6;transform:scale(0.95)} 50%{opacity:1;transform:scale(1.05)} }
+    .trofeo { font-size: 72px; line-height: 1; position: relative; filter: drop-shadow(0 0 20px rgba(202,138,4,0.5)); }
+
+    /* ── Títulos ── */
+    .titulo-mundial {
+      font-size: 13px; font-weight: 600; letter-spacing: 0.15em;
+      text-transform: uppercase; color: #CA8A04; margin-bottom: 6px;
+    }
+    .titulo-porra {
+      font-size: 32px; font-weight: 800; letter-spacing: -0.03em;
+      text-align: center; line-height: 1.1; margin-bottom: 8px;
+      background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .titulo-año {
+      font-size: 48px; font-weight: 900; letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #CA8A04 0%, #FDE68A 50%, #CA8A04 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; line-height: 1; margin-bottom: 0.5rem;
+    }
+    .subtitulo {
+      font-size: 14px; color: #64748b; text-align: center; margin-bottom: 2.5rem; line-height: 1.5;
+    }
+
+    /* ── Botones principales ── */
+    .botones-main { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 300px; margin-bottom: 2rem; }
+
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 14px 20px; border-radius: 14px; font-size: 15px; font-weight: 600;
+      text-decoration: none; cursor: pointer; border: none; transition: all 0.2s;
+      width: 100%;
+    }
+    .btn-pronostico {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(37,99,235,0.4);
+    }
+    .btn-pronostico:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(37,99,235,0.5); }
+
+    .btn-ranking {
+      background: rgba(255,255,255,0.06);
+      color: #f1f5f9;
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+    }
+    .btn-ranking:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+    .btn-icon { font-size: 20px; }
+
+    /* ── Estado sesión ── */
+    .sesion-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 100px; padding: 8px 16px; font-size: 12px; color: #94a3b8;
+      margin-bottom: 2rem; backdrop-filter: blur(8px);
+    }
+    .sesion-dot { width: 7px; height: 7px; border-radius: 50%; background: #64748b; }
+    .sesion-dot.conectado { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+    .sesion-nombre { color: #f1f5f9; font-weight: 500; }
+    .btn-salir-mini {
+      background: none; border: none; color: #64748b; font-size: 11px; cursor: pointer;
+      padding: 2px 6px; border-radius: 4px; margin-left: 4px;
+    }
+    .btn-salir-mini:hover { color: #f1f5f9; background: rgba(255,255,255,0.08); }
+
+    /* ── Participantes ── */
+    .participantes-wrap { width: 100%; max-width: 340px; }
+    .participantes-titulo { font-size: 11px; color: #475569; text-align: center; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+    .participantes-lista { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .participante-chip {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 100px; padding: 5px 10px 5px 6px; font-size: 12px; color: #94a3b8;
+    }
+    .participante-avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+
+    /* ── Admin link ── */
+    .admin-link {
+      position: fixed; bottom: 16px; right: 16px; z-index: 10;
+      font-size: 11px; color: #334155; text-decoration: none;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px; padding: 5px 10px;
+      transition: color 0.2s;
+    }
+    .admin-link:hover { color: #64748b; }
+
+    /* ── Loading ── */
+    .loading-overlay {
+      position: fixed; inset: 0; z-index: 50;
+      background: #0a0f1e;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.4s;
+    }
+    .loading-overlay.oculto { opacity: 0; pointer-events: none; }
+    .spinner { width: 32px; height: 32px; border: 2px solid #1e293b; border-top-color: #CA8A04; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="estrellas"></div>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+</div>
+
+<div class="contenido">
+
+  <!-- Trofeo -->
+  <div class="trofeo-wrap">
+    <div class="trofeo-glow"></div>
+    <div class="trofeo">🏆</div>
+  </div>
+
+  <!-- Títulos -->
+  <div class="titulo-mundial">FIFA World Cup</div>
+  <div class="titulo-año">2026</div>
+  <div class="titulo-porra">La Porra</div>
+    <div style="font-size:16px;font-weight:600;letter-spacing:0.08em;color:#64748b;text-transform:uppercase;margin-bottom:0.5rem;text-align:center">Gamberros Habituales</div>
+  <div class="subtitulo" id="subtitulo">Haz tu pronóstico y demuestra<br>que sabes más de fútbol que tus amigos.</div>
+
+  <!-- Estado sesión -->
+  <div class="sesion-bar" id="sesion-bar">
+    <div class="sesion-dot" id="sesion-dot"></div>
+    <span id="sesion-txt">Comprobando sesión...</span>
+  </div>
+
+  <!-- Botones -->
+  <div class="botones-main" id="botones-main">
+    <!-- se rellena por JS -->
+  </div>
+
+  <!-- Participantes -->
+  <div class="participantes-wrap">
+    <div class="participantes-titulo">Participantes</div>
+    <div class="participantes-lista" id="participantes-lista">
+      <div style="font-size:12px;color:#334155">Cargando...</div>
+    </div>
+  </div>
+
+</div>
+
+<a href="admin.html" class="admin-link">⚙️ admin</a>
+
+<script>
+const SUPABASE_URL = 'https://nbntbdfedjbmvwmrudeo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibnRiZGZlZGpibXZ3bXJ1ZGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MTIzNzQsImV4cCI6MjA5NjA4ODM3NH0.46Nr-mqvZSSNFd47VCgdWBD-DmD0tK5nXQ8YFEve2CI';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function iniciales(nombre) {
+  return nombre.trim().split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+}
+
+function colorAvatar(nombre) {
+  const colores = [
+    'linear-gradient(135deg,#2563eb,#7c3aed)',
+    'linear-gradient(135deg,#059669,#0d9488)',
+    'linear-gradient(135deg,#dc2626,#ea580c)',
+    'linear-gradient(135deg,#7c3aed,#db2777)',
+    'linear-gradient(135deg,#ca8a04,#b45309)',
+    'linear-gradient(135deg,#0284c7,#0e7490)',
+  ];
+  let hash = 0;
+  for(const c of nombre) hash = (hash*31 + c.charCodeAt(0)) & 0xffff;
+  return colores[hash % colores.length];
+}
+
+async function init() {
+  try {
+    // Comprobar sesión
+    const { data: { user } } = await sb.auth.getUser();
+    const dot   = document.getElementById('sesion-dot');
+    const txt   = document.getElementById('sesion-txt');
+    const bots  = document.getElementById('botones-main');
+
+    if(user) {
+      const nombre = user.user_metadata?.nombre || user.email.split('@')[0];
+      dot.classList.add('conectado');
+      txt.innerHTML = `Hola, <span class="sesion-nombre">${nombre}</span>
+        <button class="btn-salir-mini" onclick="salir()">Salir</button>`;
+
+      bots.innerHTML = `
+        <a href="pronosticos.html" class="btn btn-pronostico">
+          <span class="btn-icon">⚽</span> Mi pronóstico
+        </a>
+        <a href="ranking.html" class="btn btn-ranking">
+          <span class="btn-icon">📊</span> Ver ranking
+        </a>
+        <a href="reglas.html" class="btn btn-ranking" style="background:rgba(255,255,255,0.04)">
+          <span class="btn-icon">📖</span> Cómo funciona
+        </a>`;
+    } else {
+      dot.style.background = '#64748b';
+      txt.textContent = 'No has iniciado sesión';
+      bots.innerHTML = `
+        <a href="login.html" class="btn btn-pronostico">
+          <span class="btn-icon">🔐</span> Entrar / Registrarse
+        </a>
+        <a href="ranking.html" class="btn btn-ranking">
+          <span class="btn-icon">📊</span> Ver ranking
+        </a>
+        <a href="reglas.html" class="btn btn-ranking" style="background:rgba(255,255,255,0.04)">
+          <span class="btn-icon">📖</span> Cómo funciona
+        </a>`;
+    }
+
+    // Cargar participantes
+    const { data: pronos } = await sb.from('pronosticos').select('nombre, updated_at').order('nombre');
+    const lista = document.getElementById('participantes-lista');
+    if(pronos && pronos.length) {
+      lista.innerHTML = pronos.map(p => `
+        <div class="participante-chip">
+          <div class="participante-avatar" style="background:${colorAvatar(p.nombre)}">${iniciales(p.nombre)}</div>
+          ${p.nombre}
+        </div>`).join('');
+    } else {
+      lista.innerHTML = '<div style="font-size:12px;color:#334155">Aún no hay participantes</div>';
+    }
+
+  } catch(e) {
+    console.error(e);
+  } finally {
+    document.getElementById('loading').classList.add('oculto');
+  }
+}
+
+async function salir() {
+  await sb.auth.signOut();
+  window.location.reload();
+}
+
+init();
+</script>
+</body>
+</html>

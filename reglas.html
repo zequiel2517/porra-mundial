@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reglas — Porra Mundial 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --bg: #f1f5f9; --card: #fff; --border: #e2e8f0; --border2: #cbd5e1;
+      --text: #0f172a; --text2: #475569; --text3: #94a3b8;
+      --blue: #2563eb; --green: #3B6D11; --green-bg: #EAF3DE;
+      --radius: 12px;
+    }
+    body { font-family: var(--font-sans); background: var(--bg); min-height: 100vh; color: var(--text); }
+
+    .topbar { background: #1e293b; color: #f1f5f9; display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.3); gap: 8px; }
+    .topbar-titulo { font-size: 14px; font-weight: 600; }
+    .nav-link { color: #94a3b8; font-size: 12px; text-decoration: none; border: 1px solid #475569; border-radius: 6px; padding: 4px 10px; white-space: nowrap; }
+    .nav-link:hover { color: #f1f5f9; }
+
+    .page { max-width: 480px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+    /* HERO */
+    .hero { text-align: center; padding: 2rem 0 1.5rem; }
+    .hero-icon { font-size: 56px; display: block; margin-bottom: 0.75rem; filter: drop-shadow(0 4px 12px rgba(202,138,4,0.3)); }
+    .hero-titulo { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); margin-bottom: 0.5rem; }
+    .hero-sub { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+    /* SECCIONES */
+    .seccion { margin-bottom: 1.5rem; }
+    .seccion-titulo { font-size: 13px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px; }
+    .seccion-titulo::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* CARDS EXPLICACIÓN */
+    .card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 0.75rem; }
+    .card-header { padding: 12px 14px; background: #f8fafc; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .card-icon { font-size: 20px; flex-shrink: 0; }
+    .card-titulo { font-size: 13px; font-weight: 600; color: var(--text); }
+    .card-body { padding: 12px 14px; font-size: 13px; color: var(--text2); line-height: 1.6; }
+    .card-body p { margin-bottom: 8px; }
+    .card-body p:last-child { margin-bottom: 0; }
+    .card-body strong { color: var(--text); }
+
+    /* PASOS */
+    .pasos { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; }
+    .paso { display: flex; gap: 12px; align-items: flex-start; }
+    .paso-num { width: 26px; height: 26px; border-radius: 50%; background: #1e293b; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .paso-txt { font-size: 13px; color: var(--text2); line-height: 1.5; }
+    .paso-txt strong { color: var(--text); }
+
+    /* REGLAS DE PUNTUACIÓN */
+    .regla-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; overflow: hidden; }
+    .regla-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f8fafc; border-bottom: 0.5px solid var(--border); }
+    .regla-badge { width: 22px; height: 22px; border-radius: 6px; background: #1e293b; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .regla-badge.activa { background: var(--blue); }
+    .regla-badge.inactiva { background: #cbd5e1; }
+    .regla-titulo-txt { font-size: 13px; font-weight: 600; color: var(--text); }
+    .regla-estado { font-size: 10px; font-weight: 500; border-radius: 4px; padding: 2px 7px; margin-left: auto; }
+    .regla-estado.on { background: var(--green-bg); color: var(--green); border: 0.5px solid #C0DD97; }
+    .regla-estado.off { background: #f1f5f9; color: var(--text3); border: 0.5px solid var(--border); }
+    .regla-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .regla-body.disabled { opacity: 0.4; }
+    .punto-fila { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .punto-label { font-size: 12px; color: var(--text2); flex: 1; }
+    .punto-derecha { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .punto-valor { font-size: 14px; font-weight: 700; color: var(--blue); background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 6px; padding: 3px 10px; min-width: 40px; text-align: center; }
+    .punto-valor.off { color: var(--text3); background: #f8fafc; border-color: var(--border); }
+    .punto-pts { font-size: 12px; color: var(--text3); width: 22px; }
+
+    .tabla-posiciones { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .tabla-posiciones th { padding: 5px 4px; text-align: center; background: #f8fafc; border: 0.5px solid var(--border); color: var(--text2); font-weight: 600; }
+    .tabla-posiciones td { padding: 4px; text-align: center; border: 0.5px solid var(--border); color: var(--text); }
+    .tabla-posiciones td:first-child { font-weight: 600; background: #f8fafc; color: var(--text2); }
+    .tabla-posiciones td.diagonal { background: #EFF6FF; font-weight: 700; color: var(--blue); }
+
+    .regla-desc { font-size: 11px; color: var(--text3); padding: 0 14px 12px; line-height: 1.5; }
+
+    /* FASES */
+    .fases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .fase-chip { background: var(--card); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; }
+    .fase-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .fase-nombre { font-size: 12px; font-weight: 500; color: var(--text); }
+    .fase-equipos { font-size: 11px; color: var(--text3); }
+
+    /* CTA */
+    .cta-card { background: #1e293b; border-radius: var(--radius); padding: 1.5rem; text-align: center; margin-top: 1rem; }
+    .cta-titulo { font-size: 16px; font-weight: 700; color: #f1f5f9; margin-bottom: 6px; }
+    .cta-sub { font-size: 13px; color: #94a3b8; margin-bottom: 1.25rem; }
+    .btn-cta { display: inline-block; background: var(--blue); color: #fff; font-size: 14px; font-weight: 600; padding: 10px 24px; border-radius: 10px; text-decoration: none; }
+    .btn-cta:hover { background: #1d4ed8; }
+
+    .loading-txt { text-align: center; padding: 2rem; color: var(--text3); font-size: 13px; }
+
+    /* POS LABELS */
+    .pos-leyenda { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px 12px; }
+    .pos-tag { font-size: 11px; background: #f8fafc; border: 0.5px solid var(--border); border-radius: 4px; padding: 3px 8px; color: var(--text2); }
+    .pos-tag strong { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-titulo">📖 Cómo funciona</div>
+  <a href="index.html" class="nav-link">🏠 Inicio</a>
+</div>
+
+<div class="page">
+
+  <div class="hero">
+    <span class="hero-icon">⚽</span>
+    <div class="hero-titulo">Porra Mundial 2026</div>
+    <div class="hero-sub">Predice los resultados del Mundial, acumula puntos<br>y demuestra que eres el mejor pronosticador.</div>
+  </div>
+
+  <!-- CÓMO FUNCIONA -->
+  <div class="seccion">
+    <div class="seccion-titulo">Cómo participar</div>
+    <div class="card">
+      <div class="pasos">
+        <div class="paso"><div class="paso-num">1</div><div class="paso-txt"><strong>Regístrate</strong> con tu email y elige un nombre que se verá en el ranking.</div></div>
+        <div class="paso"><div class="paso-num">2</div><div class="paso-txt"><strong>Introduce tus pronósticos</strong> antes de que empiece el torneo: resultados de todos los partidos de grupos y fases eliminatorias hasta la final.</div></div>
+        <div class="paso"><div class="paso-num">3</div><div class="paso-txt"><strong>Guarda tu pronóstico.</strong> Solo puedes enviarlo una vez — después no se puede modificar.</div></div>
+        <div class="paso"><div class="paso-num">4</div><div class="paso-txt"><strong>Sigue el ranking</strong> en tiempo real conforme avance el torneo. Gana quien más puntos acumule al final.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FASES -->
+  <div class="seccion">
+    <div class="seccion-titulo">Estructura del torneo</div>
+    <div class="card">
+      <div class="card-body">
+        <p>El Mundial 2026 cuenta con <strong>48 selecciones</strong> divididas en <strong>12 grupos</strong> de 4 equipos.</p>
+        <p>Clasifican a dieciseisavos los <strong>2 primeros de cada grupo</strong> más los <strong>8 mejores terceros</strong>, sumando 32 equipos en la fase eliminatoria.</p>
+      </div>
+      <div class="fases-grid" style="padding:0 14px 14px">
+        <div class="fase-chip"><div class="fase-dot" style="background:#639922"></div><div><div class="fase-nombre">Fase de grupos</div><div class="fase-equipos">12 grupos · 72 partidos</div></div></div>
+        <div class="fase-chip"><div class="fase-dot" style="background:#1e3a5f"></div><div><div class="fase-nombre">Dieciseisavos</div><div class="fase-equipos">32 equipos · 16 partidos</div></div></div>
+        <div class="fase-chip"><div class="fase-dot" style="background:#3a1e5f"></div><div><div class="fase-nombre">Octavos</div><div class="fase-equipos">16 equipos · 8 partidos</div></div></div>
+        <div class="fase-chip"><div class="fase-dot" style="background:#5f1e3a"></div><div><div class="fase-nombre">Cuartos</div><div class="fase-equipos">8 equipos · 4 partidos</div></div></div>
+        <div class="fase-chip"><div class="fase-dot" style="background:#5f3a1e"></div><div><div class="fase-nombre">Semifinales</div><div class="fase-equipos">4 equipos · 2 partidos</div></div></div>
+        <div class="fase-chip"><div class="fase-dot" style="background:#7A6000"></div><div><div class="fase-nombre">Final + 3er puesto</div><div class="fase-equipos">4 equipos · 2 partidos</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGLAS DE PUNTUACIÓN -->
+  <div class="seccion">
+    <div class="seccion-titulo">Sistema de puntuación</div>
+    <div id="reglas-container"><div class="loading-txt">⏳ Cargando reglas...</div></div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-card">
+    <div class="cta-titulo">¿Listo para competir?</div>
+    <div class="cta-sub">Entra y haz tu pronóstico antes de que empiece el torneo.</div>
+    <a href="login.html" class="btn-cta">Hacer mi pronóstico →</a>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://nbntbdfedjbmvwmrudeo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibnRiZGZlZGpibXZ3bXJ1ZGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MTIzNzQsImV4cCI6MjA5NjA4ODM3NH0.46Nr-mqvZSSNFd47VCgdWBD-DmD0tK5nXQ8YFEve2CI';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const POS_LABELS = ['1','2','3','4','C','O','D','G'];
+const POS_NAMES  = ['Campeón','Subcampeón','Tercero','Cuarto','Cuartos','Octavos','Dieciseisavos','Grupos'];
+const POS_DEFAULT = [
+  [36,28,18,10, 6, 0, 0, 0],
+  [28,32,16,10, 6, 0, 0, 0],
+  [12,24,28,20,14, 6, 0, 0],
+  [ 0,10,20,24,12, 6, 0, 0],
+  [ 0, 0, 8,16,20,10, 4, 0],
+  [ 0, 0, 0, 6,12,16, 8, 2],
+  [ 0, 0, 0, 0, 4, 8,12, 6],
+  [ 0, 0, 0, 0, 0, 2, 4, 8],
+];
+
+async function cargarReglas() {
+  const { data } = await sb.from('config_reglas').select('reglas').eq('id',1).maybeSingle();
+  const r = data?.reglas || {
+    r1: { activa:true, ganador:1, exacto:3 },
+    r2: { activa:true, posicion:3 },
+    r3: { activa:true, emparej:5, ganador:1, exacto:3 },
+    r4: { activa:true, tabla:POS_DEFAULT },
+  };
+  renderReglas(r);
+}
+
+function val(v, activa) {
+  return `<span class="punto-valor${activa?'':' off'}">${v}</span>`;
+}
+
+function renderReglas(r) {
+  const cont = document.getElementById('reglas-container');
+
+  const tablaVals = r.r4?.tabla || POS_DEFAULT;
+
+  cont.innerHTML = `
+
+    <!-- R1 -->
+    <div class="regla-card">
+      <div class="regla-header">
+        <div class="regla-badge ${r.r1?.activa?'activa':'inactiva'}">R1</div>
+        <span class="regla-titulo-txt">Fase de grupos — por partido</span>
+        <span class="regla-estado ${r.r1?.activa?'on':'off'}">${r.r1?.activa?'Activa':'Inactiva'}</span>
+      </div>
+      <div class="regla-body${r.r1?.activa?'':' disabled'}">
+        <div class="punto-fila"><span class="punto-label">Acertar ganador o empate</span><div class="punto-derecha">${val(r.r1?.ganador??1, r.r1?.activa)}<span class="punto-pts">pts</span></div></div>
+        <div class="punto-fila"><span class="punto-label">Acertar marcador exacto</span><div class="punto-derecha">${val(r.r1?.exacto??3, r.r1?.activa)}<span class="punto-pts">pts</span></div></div>
+      </div>
+      <div class="regla-desc">Ambos bonus son acumulables. Máximo <strong>${(r.r1?.ganador??1)+(r.r1?.exacto??3)} pts</strong> por partido.</div>
+    </div>
+
+    <!-- R2 -->
+    <div class="regla-card">
+      <div class="regla-header">
+        <div class="regla-badge ${r.r2?.activa?'activa':'inactiva'}">R2</div>
+        <span class="regla-titulo-txt">Clasificación de grupo</span>
+        <span class="regla-estado ${r.r2?.activa?'on':'off'}">${r.r2?.activa?'Activa':'Inactiva'}</span>
+      </div>
+      <div class="regla-body${r.r2?.activa?'':' disabled'}">
+        <div class="punto-fila"><span class="punto-label">Por cada posición exacta acertada</span><div class="punto-derecha">${val(r.r2?.posicion??3, r.r2?.activa)}<span class="punto-pts">pts</span></div></div>
+      </div>
+      <div class="regla-desc">Se compara el orden final real de cada grupo con tu pronóstico. Máximo <strong>${(r.r2?.posicion??3)*4} pts</strong> por grupo.</div>
+    </div>
+
+    <!-- R3 -->
+    <div class="regla-card">
+      <div class="regla-header">
+        <div class="regla-badge ${r.r3?.activa?'activa':'inactiva'}">R3</div>
+        <span class="regla-titulo-txt">Fase eliminatoria — por partido</span>
+        <span class="regla-estado ${r.r3?.activa?'on':'off'}">${r.r3?.activa?'Activa':'Inactiva'}</span>
+      </div>
+      <div class="regla-body${r.r3?.activa?'':' disabled'}">
+        <div class="punto-fila"><span class="punto-label">Acertar el emparejamiento</span><div class="punto-derecha">${val(r.r3?.emparej??5, r.r3?.activa)}<span class="punto-pts">pts</span></div></div>
+        <div class="punto-fila"><span class="punto-label">Acertar el ganador</span><div class="punto-derecha">${val(r.r3?.ganador??1, r.r3?.activa)}<span class="punto-pts">pts</span></div></div>
+        <div class="punto-fila"><span class="punto-label">Acertar el marcador exacto</span><div class="punto-derecha">${val(r.r3?.exacto??3, r.r3?.activa)}<span class="punto-pts">pts</span></div></div>
+      </div>
+      <div class="regla-desc">El marcador exacto incluye prórroga pero <strong>no penaltis</strong>. Todos los bonus son acumulables. Máximo <strong>${(r.r3?.emparej??5)+(r.r3?.ganador??1)+(r.r3?.exacto??3)} pts</strong> por partido.</div>
+    </div>
+
+    <!-- R4 -->
+    <div class="regla-card">
+      <div class="regla-header">
+        <div class="regla-badge ${r.r4?.activa?'activa':'inactiva'}">R4</div>
+        <span class="regla-titulo-txt">Posición final de cada selección</span>
+        <span class="regla-estado ${r.r4?.activa?'on':'off'}">${r.r4?.activa?'Activa':'Inactiva'}</span>
+      </div>
+      <div class="regla-body${r.r4?.activa?'':' disabled'}">
+        <p style="font-size:11px;color:#64748b;margin-bottom:8px">
+          <strong>Filas = tu pronóstico · Columnas = resultado real.</strong><br>
+          Cuanto más te acerques a la posición real, más puntos.
+        </p>
+        <div style="overflow-x:auto">
+          <table class="tabla-posiciones">
+            <thead><tr><th>P\R</th>${POS_LABELS.map(l=>`<th>${l}</th>`).join('')}</tr></thead>
+            <tbody>${tablaVals.map((fila,ri)=>`<tr><td>${POS_LABELS[ri]}</td>${fila.map((v,ci)=>`<td class="${ri===ci?'diagonal':''}">${v}</td>`).join('')}</tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pos-leyenda">${POS_LABELS.map((l,i)=>`<span class="pos-tag"><strong>${l}</strong> = ${POS_NAMES[i]}</span>`).join('')}</div>
+      <div class="regla-desc">Se aplica a las <strong>48 selecciones</strong> del torneo. La diagonal (pronóstico = realidad) da la puntuación máxima.</div>
+    </div>`;
+}
+
+cargarReglas();
+</script>
+</body>
+</html>
