@@ -103,7 +103,11 @@
     .bs-sheet { position:fixed;bottom:0;left:0;right:0;background:var(--color-background-primary);border-radius:16px 16px 0 0;z-index:201;padding:0 0 env(safe-area-inset-bottom);max-width:480px;margin:0 auto;right:0;left:0;box-shadow:0 -4px 24px rgba(0,0,0,0.15);transform:translateY(100%);transition:transform 0.25s cubic-bezier(.4,0,.2,1); }
     .bs-sheet.visible { transform:translateY(0); }
     .bs-handle { width:36px;height:4px;background:var(--color-border-secondary);border-radius:2px;margin:10px auto 0; }
-    .bs-header { padding:12px 16px 8px;text-align:center; }
+    .bs-header { padding:8px 16px 8px; display:flex; align-items:center; justify-content:space-between; gap:6px; }
+    .bs-nav-btn { background:none; border:0.5px solid #475569; border-radius:8px; padding:5px 10px; color:#94a3b8; font-size:13px; cursor:pointer; flex-shrink:0; }
+    .bs-nav-btn:hover { background:#334155; color:#fff; }
+    .bs-nav-btn:disabled { opacity:0.25; cursor:default; }
+    .bs-header-center { flex:1; text-align:center; }
     .bs-titulo { font-size:13px;font-weight:600;color:var(--color-text-primary); }
     .bs-subtitulo { font-size:11px;color:var(--color-text-tertiary);margin-top:2px; }
     .bs-marcador-actual { display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px;background:var(--color-background-secondary);margin:0 16px;border-radius:10px; }
@@ -256,8 +260,12 @@
 <div class="bs-sheet" id="bs-sheet">
   <div class="bs-handle"></div>
   <div class="bs-header">
-    <div class="bs-titulo" id="bs-titulo">Elige el resultado</div>
-    <div class="bs-subtitulo" id="bs-subtitulo"></div>
+    <button class="bs-nav-btn" id="bs-btn-prev" onclick="navegarBS(-1)">◀</button>
+    <div class="bs-header-center">
+      <div class="bs-titulo" id="bs-titulo">Elige el resultado</div>
+      <div class="bs-subtitulo" id="bs-subtitulo"></div>
+    </div>
+    <button class="bs-nav-btn" id="bs-btn-next" onclick="navegarBS(1)">▶</button>
   </div>
   <div class="bs-marcador-actual">
     <span class="bs-score-display" id="bs-local-display">–</span>
@@ -860,6 +868,7 @@ function abrirBS(gi, pi, localEq, visEq, glActual, gvActual) {
   renderBSGrid(glActual, gvActual);
   document.getElementById('bs-overlay').classList.add('visible');
   document.getElementById('bs-sheet').classList.add('visible');
+  actualizarBSNavBtns();
 }
 
 function abrirBSElim(faseKey, cruceidx, localEq, visEq, glActual, gvActual) {
@@ -871,12 +880,59 @@ function abrirBSElim(faseKey, cruceidx, localEq, visEq, glActual, gvActual) {
   renderBSGrid(glActual, gvActual);
   document.getElementById('bs-overlay').classList.add('visible');
   document.getElementById('bs-sheet').classList.add('visible');
+  actualizarBSNavBtns();
 }
 
 function cerrarBS() {
   document.getElementById('bs-overlay').classList.remove('visible');
   document.getElementById('bs-sheet').classList.remove('visible');
   bsCtx = null;
+}
+
+function navegarBS(dir) {
+  if(!bsCtx) return;
+  if(bsCtx.tipo === 'elim') {
+    // Navegar entre cruces de la fase actual
+    const fase = bsCtx.faseKey;
+    const cruces = getCruces(fase);
+    const newIdx = bsCtx.cruceidx + dir;
+    if(newIdx < 0 || newIdx >= cruces.length) return;
+    const cr = cruces[newIdx];
+    const lEq = cr.local?.eq || '?', vEq = cr.vis?.eq || '?';
+    const est = estadoFase[fase][newIdx] || {gl:null, gv:null};
+    bsCtx = {faseKey: fase, cruceidx: newIdx, tipo: 'elim'};
+    document.getElementById('bs-titulo').textContent = `${lEq} vs ${vEq}`;
+    actualizarBSDisplay(est.gl, est.gv);
+    renderBSGrid(est.gl, est.gv);
+  } else {
+    // Navegar entre partidos del grupo actual
+    const gi = bsCtx.gi;
+    const nPartidos = GRUPOS[gi].partidos.length;
+    let newPi = bsCtx.pi + dir;
+    if(newPi < 0 || newPi >= nPartidos) return;
+    const par = GRUPOS[gi].partidos[newPi];
+    const r = resultados[gi][newPi];
+    bsCtx = {gi, pi: newPi};
+    document.getElementById('bs-titulo').textContent = `${par[0]} vs ${par[1]}`;
+    actualizarBSDisplay(r.local, r.visitante);
+    renderBSGrid(r.local, r.visitante);
+  }
+  actualizarBSNavBtns();
+}
+
+function actualizarBSNavBtns() {
+  if(!bsCtx) return;
+  const prev = document.getElementById('bs-btn-prev');
+  const next = document.getElementById('bs-btn-next');
+  if(!prev || !next) return;
+  if(bsCtx.tipo === 'elim') {
+    const cruces = getCruces(bsCtx.faseKey);
+    prev.disabled = bsCtx.cruceidx <= 0;
+    next.disabled = bsCtx.cruceidx >= cruces.length - 1;
+  } else {
+    prev.disabled = bsCtx.pi <= 0;
+    next.disabled = bsCtx.pi >= GRUPOS[bsCtx.gi].partidos.length - 1;
+  }
 }
 
 function actualizarBSDisplay(gl, gv) {

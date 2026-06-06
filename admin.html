@@ -36,17 +36,16 @@
     .grupos-wrapper { overflow: hidden; }
     .grupos-track { display: flex; transition: transform 0.35s cubic-bezier(.4,0,.2,1); }
     .grupo-slide { min-width: 100%; padding: 0 1rem; }
-    .nav-btn { background: none; border: 0.5px solid var(--border2); border-radius: 8px; padding: 4px 10px; color: var(--text2); font-size: 13px; cursor: pointer; line-height:1; }
+    .nav-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem 0; }
+    .nav-btn { background: none; border: 0.5px solid var(--border2); border-radius: 8px; padding: 5px 10px; color: var(--text2); font-size: 13px; cursor: pointer; }
     .nav-btn:disabled { opacity: 0.3; cursor: default; }
-    .grupo-header { display: flex !important; align-items: center; justify-content: space-between; }
-    .grupo-header-titulo { flex: 1; text-align: center; font-size: 15px; font-weight: 500; }
-    .fase-header { display: flex !important; align-items: center; justify-content: space-between; }
+    .nav-label { font-size: 13px; font-weight: 600; color: var(--text); }
     .dots { display: flex; justify-content: center; gap: 5px; padding: 0.6rem 0 0; flex-wrap: wrap; max-width: 300px; margin: 0 auto; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border2); cursor: pointer; transition: background 0.2s, transform 0.2s; }
     .dot.activo { background: #639922; transform: scale(1.3); }
     .dot.fase { background: #9CB8D8; }
     .dot.fase.activo { background: #2563EB; transform: scale(1.3); }
-    .grupo-header { text-align: center; padding: 0.6rem 1rem; margin: 0.75rem 0 0.6rem; border-radius: var(--radius); font-size: 15px; font-weight: 500; border: 0.5px solid var(--border); transition: background 0.3s, color 0.3s; }
+    .grupo-header { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; margin: 0.75rem 0 0.6rem; border-radius: var(--radius); font-size: 15px; font-weight: 500; border: 0.5px solid var(--border); transition: background 0.3s, color 0.3s; }
     .grupo-header.pendiente { background: #f8fafc; color: var(--text2); }
     .grupo-header.completo { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
     .partidos-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 0.6rem; }
@@ -60,37 +59,10 @@
     .marcador { display: flex; align-items: center; gap: 3px; background: #f8fafc; border-radius: 8px; padding: 3px 5px; }
     .score-input { width: 26px; height: 26px; text-align: center; font-size: 13px; font-weight: 500; border: 0.5px solid var(--border2); border-radius: 5px; background: var(--card); color: var(--text); padding: 0; -moz-appearance: textfield; }
     .score-input::-webkit-outer-spin-button,.score-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-    /* BOTTOM SHEET */
-    .bs-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;animation:fadeIn 0.15s; }
-    .bs-overlay.visible { display:block; }
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-    .bs-sheet { position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:16px 16px 0 0;z-index:201;padding:0 0 env(safe-area-inset-bottom);max-width:480px;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,0.15);transform:translateY(100%);transition:transform 0.25s cubic-bezier(.4,0,.2,1); }
-    .bs-sheet.visible { transform:translateY(0); }
-    .bs-handle { width:36px;height:4px;background:#e2e8f0;border-radius:2px;margin:10px auto 0; }
-    .bs-header { padding:12px 16px 8px;text-align:center; }
-    .bs-titulo { font-size:13px;font-weight:600;color:#0f172a; }
-    .bs-marcador-actual { display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px;background:#f8fafc;margin:0 16px;border-radius:10px; }
-    .bs-score-display { font-size:28px;font-weight:700;color:#0f172a;min-width:32px;text-align:center; }
-    .bs-sep { font-size:20px;color:#94a3b8; }
-    .bs-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:12px 16px 8px; }
-    .bs-btn { background:#f8fafc;border:0.5px solid #e2e8f0;border-radius:8px;padding:8px 4px;font-size:12px;font-weight:500;color:#0f172a;cursor:pointer;text-align:center;transition:background 0.1s;line-height:1.3; }
-    .bs-btn:hover,.bs-btn:active { background:#4a5568;color:#fff;border-color:#4a5568; }
-    .bs-btn.seleccionado { background:#4a5568;color:#fff;border-color:#4a5568; }
-    .bs-extra { display:flex;align-items:center;justify-content:center;gap:4px;padding:0 12px 16px; }
-    .bs-extra-grupo { display:flex;gap:3px; }
-    .bs-extra-btn { background:#f8fafc;border:0.5px solid #e2e8f0;border-radius:8px;padding:8px 0;font-size:13px;font-weight:600;color:#0f172a;cursor:pointer;width:calc((100vw - 80px)/10);max-width:38px;min-width:28px;text-align:center;transition:background 0.1s; }
-    .bs-extra-btn:hover,.bs-extra-btn:active { background:#4a5568;color:#fff;border-color:#4a5568; }
-    .bs-extra-btn.sel-local { background:#2563eb;color:#fff;border-color:#2563eb; }
-    .bs-extra-btn.sel-vis   { background:#2563eb;color:#fff;border-color:#2563eb; }
-    .bs-extra-sep { font-size:18px;color:#94a3b8;font-weight:300;padding:0 2px;flex-shrink:0; }
-
-    /* SELECTOR TERCEROS D16 */
-    .tercero-select { font-size:11px;border:0.5px solid var(--border2);border-radius:6px;padding:3px 5px;background:var(--card);color:var(--text);width:100%;max-width:160px; }
     .score-sep { font-size: 12px; color: var(--text3); font-weight: 500; }
 
     /* Fases elim */
-    .fase-header { text-align: center; padding: 0.6rem 1rem; margin: 0.75rem 0 0.6rem; border-radius: var(--radius); font-size: 15px; font-weight: 600; color: #fff; }
+    .fase-header { text-align: center; display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1rem; margin: 0.75rem 0 0.6rem; border-radius: var(--radius); font-size: 15px; font-weight: 600; color: #fff; }
     .fase-d16 { background: #1e3a5f; } .fase-oct { background: #3a1e5f; }
     .fase-qtr { background: #5f1e3a; } .fase-semi { background: #5f3a1e; }
     .fase-final { background: #7A6000; }
@@ -135,6 +107,50 @@
     .tabla-posiciones td:first-child { font-weight: 600; background: #f8fafc; color: var(--text2); }
     .tabla-posiciones input { width: 36px; text-align: center; font-size: 11px; border: 1px solid var(--border2); border-radius: 4px; padding: 3px 2px; color: var(--text); background: var(--card); }
     .regla-desc { font-size: 11px; color: var(--text3); line-height: 1.4; padding: 0 14px 12px; }
+
+    .clasificacion-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: visible; margin-bottom: 0.6rem; }
+    .clas-cabecera { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-bottom: 0.5px solid var(--border); background: #f8fafc; border-radius: var(--radius) var(--radius) 0 0; }
+    .clas-titulo { font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; }
+    .empate-badge { font-size: 10px; font-weight: 500; color: #A32D2D; background: #FCEBEB; border: 0.5px solid #F7C1C1; border-radius: 4px; padding: 2px 6px; display: none; }
+    .empate-badge.visible { display: inline-block; }
+    .clas-tabla { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .clas-tabla th { padding: 4px 5px; color: var(--text3); font-weight: 500; font-size: 10px; text-align: center; border-bottom: 0.5px solid var(--border); }
+    .clas-tabla th:nth-child(2) { text-align: left; padding-left: 4px; }
+    .clas-tabla td { padding: 6px 5px; text-align: center; color: var(--text); border-bottom: 0.5px solid var(--border); }
+    .clas-tabla tr:last-child td { border-bottom: none; }
+    .clas-tabla td:nth-child(2) { text-align: left; padding-left: 4px; }
+    .pos-num { font-weight: 500; color: var(--text2); width: 12px; display: inline-block; text-align: center; font-size: 10px; }
+    .pos-num.top2 { color: #3B6D11; }
+    .pos-num.top3 { color: #1D6BA8; }
+    .pts { font-weight: 500; }
+    .drag-handle { cursor: grab; color: var(--text3); font-size: 13px; display: none; vertical-align: middle; }
+    .drag-handle.visible { display: inline; }
+    .clas-row.dragging { opacity: 0.4; }
+    .clas-row.drag-over { background: #EAF3DE; }
+
+    /* BOTTOM SHEET */
+    .bs-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none; }
+    .bs-overlay.visible { display:block; }
+    .bs-sheet { position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:16px 16px 0 0;z-index:201;padding:0 0 env(safe-area-inset-bottom);max-width:480px;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,0.15);transform:translateY(100%);transition:transform 0.25s cubic-bezier(.4,0,.2,1); }
+    .bs-sheet.visible { transform:translateY(0); }
+    .bs-handle { width:36px;height:4px;background:#e2e8f0;border-radius:2px;margin:10px auto 0; }
+    .bs-header { padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:6px; }
+    .bs-nav-btn { background:none;border:0.5px solid #475569;border-radius:8px;padding:5px 10px;color:#94a3b8;font-size:13px;cursor:pointer;flex-shrink:0; }
+    .bs-nav-btn:disabled { opacity:0.25;cursor:default; }
+    .bs-header-center { flex:1;text-align:center; }
+    .bs-titulo { font-size:13px;font-weight:600;color:#0f172a; }
+    .bs-marcador-actual { display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px;background:#f8fafc;margin:0 16px;border-radius:10px; }
+    .bs-score-display { font-size:28px;font-weight:700;color:#0f172a;min-width:32px;text-align:center; }
+    .bs-sep { font-size:20px;color:#94a3b8; }
+    .bs-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:12px 16px 8px; }
+    .bs-btn { background:#f8fafc;border:0.5px solid #e2e8f0;border-radius:8px;padding:8px 4px;font-size:12px;font-weight:500;color:#0f172a;cursor:pointer;text-align:center;transition:background 0.1s; }
+    .bs-btn:hover,.bs-btn:active,.bs-btn.seleccionado { background:#4a5568;color:#fff;border-color:#4a5568; }
+    .bs-extra { display:flex;align-items:center;justify-content:center;gap:4px;padding:0 12px 16px; }
+    .bs-extra-grupo { display:flex;gap:3px; }
+    .bs-extra-btn { background:#f8fafc;border:0.5px solid #e2e8f0;border-radius:8px;padding:8px 0;font-size:13px;font-weight:600;color:#0f172a;cursor:pointer;width:calc((100vw - 80px)/10);max-width:38px;min-width:28px;text-align:center; }
+    .bs-extra-btn.sel-local { background:#2563eb;color:#fff;border-color:#2563eb; }
+    .bs-extra-btn.sel-vis   { background:#2563eb;color:#fff;border-color:#2563eb; }
+    .bs-extra-sep { font-size:18px;color:#94a3b8;padding:0 2px;flex-shrink:0; }
   </style>
 </head>
 <body>
@@ -157,31 +173,11 @@
 <!-- PARTIDOS -->
 <div id="panel-partidos">
   <div class="app">
-
+    
     <div class="grupos-wrapper" id="wrapper">
       <div class="grupos-track" id="track"></div>
     </div>
     <div class="dots" id="dots"></div>
-  </div>
-</div>
-
-<!-- BOTTOM SHEET -->
-<div class="bs-overlay" id="bs-overlay" onclick="cerrarBS()"></div>
-<div class="bs-sheet" id="bs-sheet">
-  <div class="bs-handle"></div>
-  <div class="bs-header">
-    <div class="bs-titulo" id="bs-titulo">Elige el resultado</div>
-  </div>
-  <div class="bs-marcador-actual">
-    <span class="bs-score-display" id="bs-local-display">–</span>
-    <span class="bs-sep">:</span>
-    <span class="bs-score-display" id="bs-vis-display">–</span>
-  </div>
-  <div class="bs-grid" id="bs-grid"></div>
-  <div class="bs-extra" id="bs-extra">
-    <div class="bs-extra-grupo" id="bs-extra-local"></div>
-    <span class="bs-extra-sep">—</span>
-    <div class="bs-extra-grupo" id="bs-extra-vis"></div>
   </div>
 </div>
 
@@ -266,9 +262,24 @@
 </div>
 
 <script>
+// ── CONTROL DE ACCESO ADMIN ──────────────────────────────────
+const ADMIN_EMAILS = [
+  'zequiel2517@gmail.com', // añade aquí los emails autorizados
+];
+
 const SUPABASE_URL = 'https://nbntbdfedjbmvwmrudeo.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibnRiZGZlZGpibXZ3bXJ1ZGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MTIzNzQsImV4cCI6MjA5NjA4ODM3NH0.46Nr-mqvZSSNFd47VCgdWBD-DmD0tK5nXQ8YFEve2CI';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Verificar acceso admin antes de cargar nada
+(async () => {
+  const { data } = await sb.auth.getSession();
+  const email = data?.session?.user?.email;
+  if (!email || !ADMIN_EMAILS.includes(email)) {
+    document.body.innerHTML = '';
+    window.location.href = 'index.html';
+  }
+})();
 
 // ===== DATOS =====
 const GRUPOS = [
@@ -288,8 +299,6 @@ const GRUPOS = [
 
 const FASES_ELIM = ['d16','oct','qtr','semi','tercer','final'];
 const mkE = n => { const o={}; for(let i=0;i<n;i++) o[i]={gl:null,gv:null,elegido:null}; return o; };
-// Override manual de terceros en D16: {pnum -> gi del tercero elegido}
-const tercerosOverride = {};
 const resultados = GRUPOS.map(g => g.partidos.map(() => ({local:null,visitante:null})));
 const estadoFase = { d16:mkE(16), oct:mkE(8), qtr:mkE(4), semi:mkE(2), tercer:mkE(1), final:mkE(1) };
 
@@ -309,6 +318,7 @@ const POS_DEFAULT = [
 let idx = 0;
 const TOTAL = GRUPOS.length + 5; // grupos + d16+oct+qtr+semi+final
 const PNUMS_VAR = ['P74','P77','P79','P80','P81','P82','P85','P87'];
+const tercerosOverride = {};
 let hayPendiente = false;
 let tabActiva = 'partidos';
 
@@ -359,7 +369,7 @@ async function guardarTodo() {
   btn.disabled=true; btn.textContent='Guardando...';
   try {
     // Guardar resultados reales
-    const datosPartidos = { resultados, estadoFase, tercerosOverride };
+    const datosPartidos = { resultados, estadoFase };
     const { error: e1 } = await sb.from('resultados_reales').upsert({ id:'00000000-0000-0000-0000-000000000001', datos: datosPartidos, updated_at: new Date().toISOString() });
     if(e1) throw e1;
 
@@ -387,10 +397,11 @@ async function cargarTodo() {
     // Cargar resultados reales
     const { data: dr } = await sb.from('resultados_reales').select('datos').eq('id','00000000-0000-0000-0000-000000000001').maybeSingle();
     if(dr?.datos) {
-      const datosR = typeof dr.datos === 'string' ? JSON.parse(dr.datos) : dr.datos;
+      const datosR = typeof dr.datos==='string' ? JSON.parse(dr.datos) : dr.datos;
       if(datosR?.resultados) datosR.resultados.forEach((grp,gi)=>grp.forEach((r,pi)=>{ resultados[gi][pi]=r; }));
       if(datosR?.estadoFase) Object.keys(datosR.estadoFase).forEach(fase=>{ if(estadoFase[fase]) Object.keys(datosR.estadoFase[fase]).forEach(i=>{ estadoFase[fase][i]=datosR.estadoFase[fase][i]; }); });
       if(datosR?.tercerosOverride) Object.assign(tercerosOverride, datosR.tercerosOverride);
+      GRUPOS.forEach((_,gi)=>{renderPartidos(gi);renderTabla(gi);});
       setEstado('Datos cargados ✓','ok');
     }
 
@@ -405,7 +416,7 @@ async function cargarTodo() {
     }
 
     // Re-renderizar
-    GRUPOS.forEach((_,gi)=>renderPartidos(gi));
+    GRUPOS.forEach((_,gi)=>{renderPartidos(gi);renderTabla(gi);});
     const fi=idx-GRUPOS.length;
     if(fi>=0) renderFaseElim(['d16','oct','qtr','semi','final'][fi]);
   } catch(e) { console.error(e); }
@@ -420,9 +431,86 @@ function irA(i) {
   const fi=i-GRUPOS.length;
   if(fi>=0) renderFaseElim(['d16','oct','qtr','semi','final'][fi]);
 }
-let wrapper, startX=0;
+const wrapper=document.getElementById('wrapper');
+let startX=0;
+wrapper.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;},{passive:true});
+wrapper.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-startX;if(Math.abs(dx)>40)irA(dx<0?idx+1:idx-1);});
 
 // ===== PARTIDOS GRUPOS =====
+
+// ===== CLASIFICACIÓN GRUPOS (igual que pronosticos) =====
+function calcStats(gi){
+  const g=GRUPOS[gi],stats={};
+  g.equipos.forEach(e=>{stats[e]={pj:0,pg:0,pe:0,pp:0,gf:0,gc:0,pts:0};});
+  resultados[gi].forEach((r,pi)=>{
+    if(r.local===null||r.visitante===null)return;
+    const [loc,vis]=g.partidos[pi],el=stats[loc],ev=stats[vis],gl=r.local,gv=r.visitante;
+    el.pj++;ev.pj++;el.gf+=gl;el.gc+=gv;ev.gf+=gv;ev.gc+=gl;
+    if(gl>gv){el.pg++;el.pts+=3;ev.pp++;}else if(gl<gv){ev.pg++;ev.pts+=3;el.pp++;}else{el.pe++;ev.pe++;el.pts++;ev.pts++;}
+  });
+  return stats;
+}
+function sortNatural(equipos,stats){return [...equipos].sort((a,b)=>(stats[b].pts-stats[a].pts)||(stats[b].gf-stats[b].gc-(stats[a].gf-stats[a].gc))||stats[b].gf-stats[a].gf);}
+function getOrdenFinal(gi,stats){
+  const nat=sortNatural(GRUPOS[gi].equipos,stats);
+  if(!ordenManual[gi])return nat;
+  const pp={};nat.forEach(eq=>{const p=stats[eq].pts;if(!pp[p])pp[p]=[];pp[p].push(eq);});
+  const r=[];[...new Set(nat.map(e=>stats[e].pts))].forEach(p=>{const g=pp[p];if(g.length===1){r.push(g[0]);return;}const s=ordenManual[gi].filter(e=>g.includes(e));r.push(...s,...g.filter(e=>!s.includes(e)));});
+  return r;
+}
+function hayEmpate(stats){const eq=Object.keys(stats);return eq.some((e,i)=>eq.some((f,j)=>i<j&&stats[e].pts===stats[f].pts));}
+function getClasificados(gi){const stats=calcStats(gi),orden=getOrdenFinal(gi,stats);return{p1:orden[0],p2:orden[1],p3:orden[2],stats};}
+
+// Orden manual para desempates en grupos (admin)
+const ordenManual = GRUPOS.map(()=>null);
+
+let dragSrcRow=null;
+function setupTableDrag(gi){
+  const tbody=document.getElementById(`cb-${gi}`);if(!tbody)return;
+  tbody.querySelectorAll('.clas-row[draggable="true"]').forEach(row=>{
+    row.addEventListener('dragstart',e=>{dragSrcRow=row;row.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    row.addEventListener('dragend',()=>{if(dragSrcRow)dragSrcRow.classList.remove('dragging');dragSrcRow=null;});
+    row.addEventListener('dragover',e=>{e.preventDefault();row.classList.add('drag-over');});
+    row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));
+    row.addEventListener('drop',e=>{
+      e.preventDefault();row.classList.remove('drag-over');
+      if(!dragSrcRow||dragSrcRow===row||+dragSrcRow.dataset.gi!==gi)return;
+      const stats=calcStats(gi),oa=getOrdenFinal(gi,stats);
+      const si=oa.indexOf(dragSrcRow.dataset.eq),ti=oa.indexOf(row.dataset.eq);
+      if(si<0||ti<0)return;const n=[...oa];n.splice(si,1);n.splice(ti,0,dragSrcRow.dataset.eq);ordenManual[gi]=n;renderTabla(gi);marcarPendiente();
+    });
+    let tS=null,tE=null;
+    row.addEventListener('touchstart',e=>{tS=row;tE=row.dataset.eq;row.classList.add('dragging');},{passive:true});
+    row.addEventListener('touchend',e=>{
+      if(tS)tS.classList.remove('dragging');
+      const pt=e.changedTouches[0],el=document.elementFromPoint(pt.clientX,pt.clientY);
+      const tgt=el&&el.closest('.clas-row[draggable="true"]');
+      if(tgt&&tgt!==tS&&+tgt.dataset.gi===gi){const stats=calcStats(gi),oa=getOrdenFinal(gi,stats);const si=oa.indexOf(tE),ti=oa.indexOf(tgt.dataset.eq);if(si>-1&&ti>-1){const n=[...oa];n.splice(si,1);n.splice(ti,0,tE);ordenManual[gi]=n;marcarPendiente();}}
+      tS=null;tE=null;renderTabla(gi);
+    });
+  });
+}
+
+function renderTabla(gi){
+  const stats=calcStats(gi),orden=getOrdenFinal(gi,stats),g=GRUPOS[gi],tieneEmpate=hayEmpate(stats);
+  const badge=document.getElementById(`badge-${gi}`);
+  if(badge) badge.classList.toggle('visible',tieneEmpate);
+  const tbody=document.getElementById(`cb-${gi}`);
+  if(!tbody)return;
+  tbody.innerHTML=orden.map((eq,i)=>{
+    const s=stats[eq],esEmp=tieneEmpate&&orden.some((o,j)=>j!==i&&stats[o].pts===s.pts);
+    const pc=i<2?'top2':i===2?'top3':'';
+    return `<tr class="clas-row" draggable="${esEmp}" data-gi="${gi}" data-eq="${eq}">
+      <td style="width:18px;padding-left:6px;"><span class="drag-handle${esEmp?' visible':''}">⠿</span></td>
+      <td><span class="pos-num ${pc}">${i+1}</span> ${g.banderas[eq]||''} ${eq}</td>
+      <td>${s.pj}</td><td>${s.pg}</td><td>${s.pe}</td><td>${s.pp}</td><td>${s.gf}</td><td>${s.gc}</td><td class="pts">${s.pts}</td>
+    </tr>`;
+  }).join('');
+  setupTableDrag(gi);
+  const ok=resultados[gi].every(r=>r.local!==null&&r.visitante!==null);
+  const hdr=document.getElementById(`hdr-${gi}`);
+  if(hdr){hdr.classList.toggle('pendiente',!ok);hdr.classList.toggle('completo',ok);}
+}
 function renderPartidos(gi) {
   const g=GRUPOS[gi], card=document.getElementById(`pc-${gi}`);
   if(!card) return;
@@ -458,10 +546,68 @@ function renderPartidos(gi) {
 function ganadorCruce(est){ if(!est||est.gl===null||est.gv===null)return null; if(est.gl>est.gv)return 'local'; if(est.gv>est.gl)return 'visitante'; return est.elegido||null; }
 function perdedorCruce(est){ const g=ganadorCruce(est); return g?g==='local'?'visitante':'local':null; }
 
+const PARTIDOS_VAR=[
+  {pnum:'P74',pgr:4,ok:[0,1,2,3,5]},{pnum:'P77',pgr:8,ok:[2,3,5,6,7]},
+  {pnum:'P79',pgr:0,ok:[2,4,5,7,8]},{pnum:'P80',pgr:11,ok:[4,7,8,9,10]},
+  {pnum:'P81',pgr:3,ok:[1,4,5,8,9]},{pnum:'P82',pgr:6,ok:[0,4,7,8,9]},
+  {pnum:'P85',pgr:1,ok:[4,5,6,8,9]},{pnum:'P87',pgr:10,ok:[3,4,8,9,11]},
+];
+function get8Terceros(){return GRUPOS.map((_,gi)=>{const cl=getClasificados(gi),s=cl.stats[cl.p3];return{eq:cl.p3,gi,pts:s.pts,dg:s.gf-s.gc,gf:s.gf};}).sort((a,b)=>(b.pts-a.pts)||(b.dg-a.dg)||b.gf-a.gf);}
+
+// Detecta si hay empate en la frontera 8/9 que requiere selección manual
+function detectarEmpateFrontera(t3all) {
+  if(t3all.length < 9) return false;
+  const t8 = t3all[7], t9 = t3all[8];
+  return t8.pts === t9.pts && t8.dg === t9.dg && t8.gf === t9.gf;
+}
+
+// En admin: los overrides manuales se hacen por partido (tercerosOverride)
+// get8TercerosEfectivos simplemente devuelve los 8 mejores automáticos
+function get8TercerosEfectivos() {
+  return get8Terceros().slice(0,8);
+}
+const FIFA_TABLA = {"E,F,G,H,I,J,K,L":{"P74":"F","P77":"G","P79":"E","P80":"K","P81":"I","P82":"H","P85":"J","P87":"L"},"D,F,G,H,I,J,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"I","P82":"J","P85":"G","P87":"L"},"D,E,G,H,I,J,K,L":{"P74":"D","P77":"G","P79":"E","P80":"K","P81":"I","P82":"H","P85":"J","P87":"L"},"D,E,F,H,I,J,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"I","P82":"H","P85":"J","P87":"L"},"D,E,F,G,I,J,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"I","P82":"J","P85":"G","P87":"L"},"D,E,F,G,H,J,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"J","P82":"H","P85":"G","P87":"L"},"D,E,F,G,H,I,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"I","P82":"H","P85":"G","P87":"L"},"D,E,F,G,H,I,J,L":{"P74":"D","P77":"F","P79":"E","P80":"I","P81":"J","P82":"H","P85":"G","P87":"L"},"D,E,F,G,H,I,J,K":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"J","P82":"H","P85":"G","P87":"I"},"C,F,G,H,I,J,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"I","P82":"J","P85":"G","P87":"L"},"C,E,G,H,I,J,K,L":{"P74":"C","P77":"G","P79":"E","P80":"K","P81":"I","P82":"H","P85":"J","P87":"L"},"C,E,F,H,I,J,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"I","P82":"H","P85":"J","P87":"L"},"C,E,F,G,I,J,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"I","P82":"J","P85":"G","P87":"L"},"C,E,F,G,H,J,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"J","P82":"H","P85":"G","P87":"L"},"C,E,F,G,H,I,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"I","P82":"H","P85":"G","P87":"L"},"C,E,F,G,H,I,J,L":{"P74":"C","P77":"F","P79":"E","P80":"I","P81":"J","P82":"H","P85":"G","P87":"L"},"C,E,F,G,H,I,J,K":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"J","P82":"H","P85":"G","P87":"I"},"C,D,G,H,I,J,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"I","P82":"J","P85":"G","P87":"L"},"C,D,F,H,I,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"I","P82":"H","P85":"J","P87":"L"},"C,D,F,G,I,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"I","P82":"J","P85":"G","P87":"L"},"C,D,F,G,H,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"J","P82":"H","P85":"G","P87":"L"},"C,D,F,G,H,I,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"I","P82":"H","P85":"G","P87":"L"},"C,D,F,G,H,I,J,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"J","P82":"H","P85":"G","P87":"L"},"C,D,F,G,H,I,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"J","P82":"H","P85":"G","P87":"I"},"C,D,E,H,I,J,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"I","P82":"H","P85":"J","P87":"L"},"C,D,E,G,I,J,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"I","P82":"J","P85":"G","P87":"L"},"C,D,E,G,H,J,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"J","P82":"H","P85":"G","P87":"L"},"C,D,E,G,H,I,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"I","P82":"H","P85":"G","P87":"L"},"C,D,E,G,H,I,J,L":{"P74":"C","P77":"D","P79":"E","P80":"I","P81":"J","P82":"H","P85":"G","P87":"L"},"C,D,E,G,H,I,J,K":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"J","P82":"H","P85":"G","P87":"I"},"C,D,E,F,I,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"I","P85":"J","P87":"L"},"C,D,E,F,H,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"H","P85":"J","P87":"L"},"C,D,E,F,H,I,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"I","P82":"H","P85":"E","P87":"L"},"C,D,E,F,H,I,J,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"E","P82":"H","P85":"J","P87":"L"},"C,D,E,F,H,I,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"H","P85":"J","P87":"I"},"C,D,E,F,G,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"J","P85":"G","P87":"L"},"C,D,E,F,G,I,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"I","P85":"G","P87":"L"},"C,D,E,F,G,I,J,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"E","P82":"J","P85":"G","P87":"L"},"C,D,E,F,G,I,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"J","P85":"G","P87":"I"},"C,D,E,F,G,H,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"H","P85":"G","P87":"L"},"C,D,E,F,G,H,J,L":{"P74":"D","P77":"F","P79":"C","P80":"E","P81":"J","P82":"H","P85":"G","P87":"L"},"C,D,E,F,G,H,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"J","P82":"H","P85":"G","P87":"E"},"C,D,E,F,G,H,I,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"E","P82":"H","P85":"G","P87":"L"},"C,D,E,F,G,H,I,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"H","P85":"G","P87":"I"},"C,D,E,F,G,H,I,J":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"J","P82":"H","P85":"G","P87":"E"},"B,F,G,H,I,J,K,L":{"P74":"F","P77":"G","P79":"H","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,E,G,H,I,J,K,L":{"P74":"B","P77":"G","P79":"E","P80":"K","P81":"I","P82":"H","P85":"J","P87":"L"},"B,E,F,H,I,J,K,L":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,E,F,G,I,J,K,L":{"P74":"F","P77":"G","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,E,F,G,H,J,K,L":{"P74":"F","P77":"G","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"L"},"B,E,F,G,H,I,K,L":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"B,E,F,G,H,I,J,L":{"P74":"F","P77":"G","P79":"E","P80":"I","P81":"B","P82":"H","P85":"J","P87":"L"},"B,E,F,G,H,I,J,K":{"P74":"F","P77":"G","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"I"},"B,D,G,H,I,J,K,L":{"P74":"D","P77":"G","P79":"H","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,D,F,H,I,J,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,D,F,G,I,J,K,L":{"P74":"D","P77":"F","P79":"I","P80":"K","P81":"B","P82":"J","P85":"G","P87":"L"},"B,D,F,G,H,J,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"J","P85":"G","P87":"L"},"B,D,F,G,H,I,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"B,D,F,G,H,I,J,L":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"B","P82":"J","P85":"G","P87":"L"},"B,D,F,G,H,I,J,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"J","P85":"G","P87":"I"},"B,D,E,H,I,J,K,L":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,D,E,G,I,J,K,L":{"P74":"D","P77":"G","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,D,E,G,H,J,K,L":{"P74":"D","P77":"G","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"L"},"B,D,E,G,H,I,K,L":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"B,D,E,G,H,I,J,L":{"P74":"D","P77":"G","P79":"E","P80":"I","P81":"B","P82":"H","P85":"J","P87":"L"},"B,D,E,G,H,I,J,K":{"P74":"D","P77":"G","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"I"},"B,D,E,F,I,J,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,D,E,F,H,J,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"L"},"B,D,E,F,H,I,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"H","P85":"I","P87":"L"},"B,D,E,F,H,I,J,L":{"P74":"D","P77":"F","P79":"E","P80":"I","P81":"B","P82":"H","P85":"J","P87":"L"},"B,D,E,F,H,I,J,K":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"I"},"B,D,E,F,G,J,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"J","P85":"G","P87":"L"},"B,D,E,F,G,I,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"B,D,E,F,G,I,J,L":{"P74":"D","P77":"F","P79":"E","P80":"I","P81":"B","P82":"J","P85":"G","P87":"L"},"B,D,E,F,G,I,J,K":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"J","P85":"G","P87":"I"},"B,D,E,F,G,H,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"H","P85":"G","P87":"L"},"B,D,E,F,G,H,J,L":{"P74":"D","P77":"F","P79":"H","P80":"E","P81":"B","P82":"J","P85":"G","P87":"L"},"B,D,E,F,G,H,J,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"J","P85":"G","P87":"E"},"B,D,E,F,G,H,I,L":{"P74":"D","P77":"F","P79":"E","P80":"I","P81":"B","P82":"H","P85":"G","P87":"L"},"B,D,E,F,G,H,I,K":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"H","P85":"G","P87":"I"},"B,D,E,F,G,H,I,J":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"B","P82":"J","P85":"G","P87":"E"},"B,C,G,H,I,J,K,L":{"P74":"C","P77":"G","P79":"H","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,C,F,H,I,J,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,C,F,G,I,J,K,L":{"P74":"C","P77":"F","P79":"I","P80":"K","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,F,G,H,J,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,F,G,H,I,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"B,C,F,G,H,I,J,L":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,F,G,H,I,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"J","P85":"G","P87":"I"},"B,C,E,H,I,J,K,L":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,C,E,G,I,J,K,L":{"P74":"C","P77":"G","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,C,E,G,H,J,K,L":{"P74":"C","P77":"G","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"L"},"B,C,E,G,H,I,K,L":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"B,C,E,G,H,I,J,L":{"P74":"C","P77":"G","P79":"E","P80":"I","P81":"B","P82":"H","P85":"J","P87":"L"},"B,C,E,G,H,I,J,K":{"P74":"C","P77":"G","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"I"},"B,C,E,F,I,J,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,C,E,F,H,J,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"L"},"B,C,E,F,H,I,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"H","P85":"I","P87":"L"},"B,C,E,F,H,I,J,L":{"P74":"C","P77":"F","P79":"E","P80":"I","P81":"B","P82":"H","P85":"J","P87":"L"},"B,C,E,F,H,I,J,K":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"I"},"B,C,E,F,G,J,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,E,F,G,I,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"B,C,E,F,G,I,J,L":{"P74":"C","P77":"F","P79":"E","P80":"I","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,E,F,G,I,J,K":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"J","P85":"G","P87":"I"},"B,C,E,F,G,H,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"H","P85":"G","P87":"L"},"B,C,E,F,G,H,J,L":{"P74":"C","P77":"F","P79":"H","P80":"E","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,E,F,G,H,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"J","P85":"G","P87":"E"},"B,C,E,F,G,H,I,L":{"P74":"C","P77":"F","P79":"E","P80":"I","P81":"B","P82":"H","P85":"G","P87":"L"},"B,C,E,F,G,H,I,K":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"H","P85":"G","P87":"I"},"B,C,E,F,G,H,I,J":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"J","P85":"G","P87":"E"},"B,C,D,H,I,J,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,C,D,G,I,J,K,L":{"P74":"C","P77":"D","P79":"I","P80":"K","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,D,G,H,J,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,D,G,H,I,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"B,C,D,G,H,I,J,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,D,G,H,I,J,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"J","P85":"G","P87":"I"},"B,C,D,F,I,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,C,D,F,H,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"H","P85":"J","P87":"L"},"B,C,D,F,H,I,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"H","P85":"I","P87":"L"},"B,C,D,F,H,I,J,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"H","P85":"J","P87":"L"},"B,C,D,F,H,I,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"H","P85":"J","P87":"I"},"B,C,D,F,G,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,D,F,G,I,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"B,C,D,F,G,I,J,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,D,F,G,I,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"J","P85":"G","P87":"I"},"B,C,D,F,G,H,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"H","P85":"G","P87":"L"},"B,C,D,F,G,H,J,L":{"P74":"D","P77":"F","P79":"C","P80":"J","P81":"B","P82":"H","P85":"G","P87":"L"},"B,C,D,F,G,H,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"J","P85":"G","P87":"D"},"B,C,D,F,G,H,I,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"H","P85":"G","P87":"L"},"B,C,D,F,G,H,I,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"H","P85":"G","P87":"I"},"B,C,D,F,G,H,I,J":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"J","P85":"G","P87":"D"},"B,C,D,E,I,J,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"B,C,D,E,H,J,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"L"},"B,C,D,E,H,I,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"H","P85":"I","P87":"L"},"B,C,D,E,H,I,J,L":{"P74":"C","P77":"D","P79":"E","P80":"I","P81":"B","P82":"H","P85":"J","P87":"L"},"B,C,D,E,H,I,J,K":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"I"},"B,C,D,E,G,J,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,D,E,G,I,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"B,C,D,E,G,I,J,L":{"P74":"C","P77":"D","P79":"E","P80":"I","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,D,E,G,I,J,K":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"J","P85":"G","P87":"I"},"B,C,D,E,G,H,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"H","P85":"G","P87":"L"},"B,C,D,E,G,H,J,L":{"P74":"C","P77":"D","P79":"H","P80":"E","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,D,E,G,H,J,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"J","P85":"G","P87":"E"},"B,C,D,E,G,H,I,L":{"P74":"C","P77":"D","P79":"E","P80":"I","P81":"B","P82":"H","P85":"G","P87":"L"},"B,C,D,E,G,H,I,K":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"H","P85":"G","P87":"I"},"B,C,D,E,G,H,I,J":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"B","P82":"J","P85":"G","P87":"E"},"B,C,D,E,F,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"E","P85":"J","P87":"L"},"B,C,D,E,F,I,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"I","P85":"E","P87":"L"},"B,C,D,E,F,I,J,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"E","P85":"J","P87":"L"},"B,C,D,E,F,I,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"E","P85":"J","P87":"I"},"B,C,D,E,F,H,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"H","P85":"E","P87":"L"},"B,C,D,E,F,H,J,L":{"P74":"D","P77":"F","P79":"C","P80":"E","P81":"B","P82":"H","P85":"J","P87":"L"},"B,C,D,E,F,H,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"H","P85":"J","P87":"E"},"B,C,D,E,F,H,I,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"H","P85":"E","P87":"L"},"B,C,D,E,F,H,I,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"H","P85":"E","P87":"I"},"B,C,D,E,F,H,I,J":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"H","P85":"J","P87":"E"},"B,C,D,E,F,G,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"E","P85":"G","P87":"L"},"B,C,D,E,F,G,J,L":{"P74":"D","P77":"F","P79":"C","P80":"E","P81":"B","P82":"J","P85":"G","P87":"L"},"B,C,D,E,F,G,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"J","P85":"G","P87":"E"},"B,C,D,E,F,G,I,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"E","P85":"G","P87":"L"},"B,C,D,E,F,G,I,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"E","P85":"G","P87":"I"},"B,C,D,E,F,G,I,J":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"J","P85":"G","P87":"E"},"B,C,D,E,F,G,H,L":{"P74":"D","P77":"F","P79":"C","P80":"E","P81":"B","P82":"H","P85":"G","P87":"L"},"B,C,D,E,F,G,H,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"H","P85":"G","P87":"E"},"B,C,D,E,F,G,H,J":{"P74":"C","P77":"F","P79":"H","P80":"E","P81":"B","P82":"J","P85":"G","P87":"D"},"B,C,D,E,F,G,H,I":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"H","P85":"G","P87":"E"},"A,F,G,H,I,J,K,L":{"P74":"F","P77":"G","P79":"H","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,E,G,H,I,J,K,L":{"P74":"A","P77":"G","P79":"E","P80":"K","P81":"I","P82":"H","P85":"J","P87":"L"},"A,E,F,H,I,J,K,L":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,E,F,G,I,J,K,L":{"P74":"F","P77":"G","P79":"E","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,E,F,G,H,J,K,L":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,E,F,G,H,I,K,L":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"I","P82":"A","P85":"G","P87":"L"},"A,E,F,G,H,I,J,L":{"P74":"F","P77":"H","P79":"E","P80":"I","P81":"J","P82":"A","P85":"G","P87":"L"},"A,E,F,G,H,I,J,K":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"I"},"A,D,G,H,I,J,K,L":{"P74":"D","P77":"G","P79":"H","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,D,F,H,I,J,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,D,F,G,I,J,K,L":{"P74":"D","P77":"F","P79":"I","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,D,F,G,H,J,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,D,F,G,H,I,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"I","P82":"A","P85":"G","P87":"L"},"A,D,F,G,H,I,J,L":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"J","P82":"A","P85":"G","P87":"L"},"A,D,F,G,H,I,J,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"J","P82":"A","P85":"G","P87":"I"},"A,D,E,H,I,J,K,L":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,D,E,G,I,J,K,L":{"P74":"D","P77":"G","P79":"E","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,D,E,G,H,J,K,L":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,D,E,G,H,I,K,L":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"I","P82":"A","P85":"G","P87":"L"},"A,D,E,G,H,I,J,L":{"P74":"D","P77":"H","P79":"E","P80":"I","P81":"J","P82":"A","P85":"G","P87":"L"},"A,D,E,G,H,I,J,K":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"I"},"A,D,E,F,I,J,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,D,E,F,H,J,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"E","P82":"A","P85":"J","P87":"L"},"A,D,E,F,H,I,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"I","P82":"A","P85":"E","P87":"L"},"A,D,E,F,H,I,J,L":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"E","P82":"A","P85":"J","P87":"L"},"A,D,E,F,H,I,J,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"E","P82":"A","P85":"J","P87":"I"},"A,D,E,F,G,J,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,D,E,F,G,I,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"I","P82":"A","P85":"G","P87":"L"},"A,D,E,F,G,I,J,L":{"P74":"D","P77":"F","P79":"E","P80":"I","P81":"J","P82":"A","P85":"G","P87":"L"},"A,D,E,F,G,I,J,K":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"I"},"A,D,E,F,G,H,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"E","P82":"A","P85":"G","P87":"L"},"A,D,E,F,G,H,J,L":{"P74":"D","P77":"F","P79":"H","P80":"E","P81":"J","P82":"A","P85":"G","P87":"L"},"A,D,E,F,G,H,J,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"J","P82":"A","P85":"G","P87":"E"},"A,D,E,F,G,H,I,L":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"E","P82":"A","P85":"G","P87":"L"},"A,D,E,F,G,H,I,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"E","P82":"A","P85":"G","P87":"I"},"A,D,E,F,G,H,I,J":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"J","P82":"A","P85":"G","P87":"E"},"A,C,G,H,I,J,K,L":{"P74":"C","P77":"G","P79":"H","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,C,F,H,I,J,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,C,F,G,I,J,K,L":{"P74":"C","P77":"F","P79":"I","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,F,G,H,J,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,F,G,H,I,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"I","P82":"A","P85":"G","P87":"L"},"A,C,F,G,H,I,J,L":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,F,G,H,I,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"J","P82":"A","P85":"G","P87":"I"},"A,C,E,H,I,J,K,L":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,C,E,G,I,J,K,L":{"P74":"C","P77":"G","P79":"E","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,C,E,G,H,J,K,L":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,E,G,H,I,K,L":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"I","P82":"A","P85":"G","P87":"L"},"A,C,E,G,H,I,J,L":{"P74":"C","P77":"H","P79":"E","P80":"I","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,E,G,H,I,J,K":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"I"},"A,C,E,F,I,J,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,C,E,F,H,J,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"E","P82":"A","P85":"J","P87":"L"},"A,C,E,F,H,I,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"I","P82":"A","P85":"E","P87":"L"},"A,C,E,F,H,I,J,L":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"E","P82":"A","P85":"J","P87":"L"},"A,C,E,F,H,I,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"E","P82":"A","P85":"J","P87":"I"},"A,C,E,F,G,J,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,E,F,G,I,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"I","P82":"A","P85":"G","P87":"L"},"A,C,E,F,G,I,J,L":{"P74":"C","P77":"F","P79":"E","P80":"I","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,E,F,G,I,J,K":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"I"},"A,C,E,F,G,H,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"E","P82":"A","P85":"G","P87":"L"},"A,C,E,F,G,H,J,L":{"P74":"C","P77":"F","P79":"H","P80":"E","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,E,F,G,H,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"J","P82":"A","P85":"G","P87":"E"},"A,C,E,F,G,H,I,L":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"E","P82":"A","P85":"G","P87":"L"},"A,C,E,F,G,H,I,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"E","P82":"A","P85":"G","P87":"I"},"A,C,E,F,G,H,I,J":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"J","P82":"A","P85":"G","P87":"E"},"A,C,D,H,I,J,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,C,D,G,I,J,K,L":{"P74":"C","P77":"D","P79":"I","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,D,G,H,J,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,D,G,H,I,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"I","P82":"A","P85":"G","P87":"L"},"A,C,D,G,H,I,J,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,D,G,H,I,J,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"J","P82":"A","P85":"G","P87":"I"},"A,C,D,F,I,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,C,D,F,H,J,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"F","P82":"A","P85":"J","P87":"L"},"A,C,D,F,H,I,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"I","P82":"A","P85":"F","P87":"L"},"A,C,D,F,H,I,J,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"F","P82":"A","P85":"J","P87":"L"},"A,C,D,F,H,I,J,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"F","P82":"A","P85":"J","P87":"I"},"A,C,D,F,G,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,D,F,G,I,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"I","P82":"A","P85":"G","P87":"L"},"A,C,D,F,G,I,J,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,D,F,G,I,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"J","P82":"A","P85":"G","P87":"I"},"A,C,D,F,G,H,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"F","P82":"A","P85":"G","P87":"L"},"A,C,D,F,G,H,J,L":{"P74":"D","P77":"F","P79":"C","P80":"H","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,D,F,G,H,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"J","P82":"A","P85":"G","P87":"D"},"A,C,D,F,G,H,I,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"F","P82":"A","P85":"G","P87":"L"},"A,C,D,F,G,H,I,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"F","P82":"A","P85":"G","P87":"I"},"A,C,D,F,G,H,I,J":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"J","P82":"A","P85":"G","P87":"D"},"A,C,D,E,I,J,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"I","P82":"A","P85":"J","P87":"L"},"A,C,D,E,H,J,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"E","P82":"A","P85":"J","P87":"L"},"A,C,D,E,H,I,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"I","P82":"A","P85":"E","P87":"L"},"A,C,D,E,H,I,J,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"E","P82":"A","P85":"J","P87":"L"},"A,C,D,E,H,I,J,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"E","P82":"A","P85":"J","P87":"I"},"A,C,D,E,G,J,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,D,E,G,I,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"I","P82":"A","P85":"G","P87":"L"},"A,C,D,E,G,I,J,L":{"P74":"C","P77":"D","P79":"E","P80":"I","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,D,E,G,I,J,K":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"J","P82":"A","P85":"G","P87":"I"},"A,C,D,E,G,H,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"E","P82":"A","P85":"G","P87":"L"},"A,C,D,E,G,H,J,L":{"P74":"C","P77":"D","P79":"H","P80":"E","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,D,E,G,H,J,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"J","P82":"A","P85":"G","P87":"E"},"A,C,D,E,G,H,I,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"E","P82":"A","P85":"G","P87":"L"},"A,C,D,E,G,H,I,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"E","P82":"A","P85":"G","P87":"I"},"A,C,D,E,G,H,I,J":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"J","P82":"A","P85":"G","P87":"E"},"A,C,D,E,F,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"A","P85":"J","P87":"L"},"A,C,D,E,F,I,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"I","P82":"A","P85":"E","P87":"L"},"A,C,D,E,F,I,J,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"E","P82":"A","P85":"J","P87":"L"},"A,C,D,E,F,I,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"A","P85":"J","P87":"I"},"A,C,D,E,F,H,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"F","P82":"A","P85":"E","P87":"L"},"A,C,D,E,F,H,J,L":{"P74":"C","P77":"D","P79":"H","P80":"E","P81":"F","P82":"A","P85":"J","P87":"L"},"A,C,D,E,F,H,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"E","P82":"A","P85":"J","P87":"D"},"A,C,D,E,F,H,I,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"F","P82":"A","P85":"E","P87":"L"},"A,C,D,E,F,H,I,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"F","P82":"A","P85":"E","P87":"I"},"A,C,D,E,F,H,I,J":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"E","P82":"A","P85":"J","P87":"D"},"A,C,D,E,F,G,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"A","P85":"G","P87":"L"},"A,C,D,E,F,G,J,L":{"P74":"D","P77":"F","P79":"C","P80":"E","P81":"J","P82":"A","P85":"G","P87":"L"},"A,C,D,E,F,G,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"J","P82":"A","P85":"G","P87":"E"},"A,C,D,E,F,G,I,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"E","P82":"A","P85":"G","P87":"L"},"A,C,D,E,F,G,I,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"E","P82":"A","P85":"G","P87":"I"},"A,C,D,E,F,G,I,J":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"J","P82":"A","P85":"G","P87":"E"},"A,C,D,E,F,G,H,L":{"P74":"C","P77":"D","P79":"H","P80":"E","P81":"F","P82":"A","P85":"G","P87":"L"},"A,C,D,E,F,G,H,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"E","P82":"A","P85":"G","P87":"D"},"A,C,D,E,F,G,H,J":{"P74":"C","P77":"F","P79":"H","P80":"E","P81":"J","P82":"A","P85":"G","P87":"D"},"A,C,D,E,F,G,H,I":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"E","P82":"A","P85":"G","P87":"D"},"A,B,G,H,I,J,K,L":{"P74":"A","P77":"G","P79":"H","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"A,B,F,H,I,J,K,L":{"P74":"A","P77":"F","P79":"H","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"A,B,F,G,I,J,K,L":{"P74":"F","P77":"G","P79":"I","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,F,G,H,J,K,L":{"P74":"F","P77":"G","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,F,G,H,I,K,L":{"P74":"A","P77":"F","P79":"H","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"A,B,F,G,H,I,J,L":{"P74":"F","P77":"G","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,F,G,H,I,J,K":{"P74":"F","P77":"G","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,E,H,I,J,K,L":{"P74":"A","P77":"H","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"A,B,E,G,I,J,K,L":{"P74":"A","P77":"G","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"A,B,E,G,H,J,K,L":{"P74":"A","P77":"G","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"L"},"A,B,E,G,H,I,K,L":{"P74":"A","P77":"H","P79":"E","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"A,B,E,G,H,I,J,L":{"P74":"A","P77":"G","P79":"E","P80":"I","P81":"B","P82":"H","P85":"J","P87":"L"},"A,B,E,G,H,I,J,K":{"P74":"A","P77":"G","P79":"E","P80":"K","P81":"B","P82":"H","P85":"J","P87":"I"},"A,B,E,F,I,J,K,L":{"P74":"A","P77":"F","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"A,B,E,F,H,J,K,L":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,E,F,H,I,K,L":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"I","P87":"L"},"A,B,E,F,H,I,J,L":{"P74":"F","P77":"H","P79":"E","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,E,F,H,I,J,K":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,E,F,G,J,K,L":{"P74":"F","P77":"G","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,E,F,G,I,K,L":{"P74":"A","P77":"F","P79":"E","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"A,B,E,F,G,I,J,L":{"P74":"F","P77":"G","P79":"E","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,E,F,G,I,J,K":{"P74":"F","P77":"G","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,E,F,G,H,K,L":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,E,F,G,H,J,L":{"P74":"F","P77":"G","P79":"H","P80":"E","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,E,F,G,H,J,K":{"P74":"F","P77":"G","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,E,F,G,H,I,L":{"P74":"F","P77":"H","P79":"E","P80":"I","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,E,F,G,H,I,K":{"P74":"F","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,E,F,G,H,I,J":{"P74":"F","P77":"G","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,D,H,I,J,K,L":{"P74":"D","P77":"H","P79":"I","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,G,I,J,K,L":{"P74":"D","P77":"G","P79":"I","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,G,H,J,K,L":{"P74":"D","P77":"G","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,G,H,I,K,L":{"P74":"D","P77":"H","P79":"I","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,G,H,I,J,L":{"P74":"D","P77":"G","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,G,H,I,J,K":{"P74":"D","P77":"G","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,D,F,I,J,K,L":{"P74":"D","P77":"F","P79":"I","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,F,H,J,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,F,H,I,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"I","P87":"L"},"A,B,D,F,H,I,J,L":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,F,H,I,J,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,D,F,G,J,K,L":{"P74":"D","P77":"G","P79":"F","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,F,G,I,K,L":{"P74":"D","P77":"F","P79":"I","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,F,G,I,J,L":{"P74":"D","P77":"G","P79":"F","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,F,G,I,J,K":{"P74":"D","P77":"G","P79":"F","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,D,F,G,H,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,F,G,H,J,L":{"P74":"D","P77":"F","P79":"H","P80":"J","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,F,G,H,J,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"J"},"A,B,D,F,G,H,I,L":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,F,G,H,I,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,D,F,G,H,I,J":{"P74":"D","P77":"F","P79":"H","P80":"J","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,D,E,I,J,K,L":{"P74":"A","P77":"D","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"A,B,D,E,H,J,K,L":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,E,H,I,K,L":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"I","P87":"L"},"A,B,D,E,H,I,J,L":{"P74":"D","P77":"H","P79":"E","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,E,H,I,J,K":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,D,E,G,J,K,L":{"P74":"D","P77":"G","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,E,G,I,K,L":{"P74":"A","P77":"D","P79":"E","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"A,B,D,E,G,I,J,L":{"P74":"D","P77":"G","P79":"E","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,E,G,I,J,K":{"P74":"D","P77":"G","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,D,E,G,H,K,L":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,E,G,H,J,L":{"P74":"D","P77":"G","P79":"H","P80":"E","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,E,G,H,J,K":{"P74":"D","P77":"G","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,D,E,G,H,I,L":{"P74":"D","P77":"H","P79":"E","P80":"I","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,E,G,H,I,K":{"P74":"D","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,D,E,G,H,I,J":{"P74":"D","P77":"G","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,D,E,F,J,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,E,F,I,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"I","P87":"L"},"A,B,D,E,F,I,J,L":{"P74":"D","P77":"F","P79":"E","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,E,F,I,J,K":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,D,E,F,H,K,L":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"E","P87":"L"},"A,B,D,E,F,H,J,L":{"P74":"D","P77":"F","P79":"H","P80":"E","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,D,E,F,H,J,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,D,E,F,H,I,L":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"E","P87":"L"},"A,B,D,E,F,H,I,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"E","P87":"I"},"A,B,D,E,F,H,I,J":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,D,E,F,G,K,L":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,E,F,G,J,L":{"P74":"D","P77":"F","P79":"E","P80":"J","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,E,F,G,J,K":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"J"},"A,B,D,E,F,G,I,L":{"P74":"D","P77":"F","P79":"E","P80":"I","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,E,F,G,I,K":{"P74":"D","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,D,E,F,G,I,J":{"P74":"D","P77":"F","P79":"E","P80":"J","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,D,E,F,G,H,L":{"P74":"D","P77":"F","P79":"H","P80":"E","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,D,E,F,G,H,K":{"P74":"D","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,D,E,F,G,H,J":{"P74":"D","P77":"F","P79":"H","P80":"J","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,D,E,F,G,H,I":{"P74":"D","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,C,H,I,J,K,L":{"P74":"C","P77":"H","P79":"I","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,G,I,J,K,L":{"P74":"C","P77":"G","P79":"I","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,G,H,J,K,L":{"P74":"C","P77":"G","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,G,H,I,K,L":{"P74":"C","P77":"H","P79":"I","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,G,H,I,J,L":{"P74":"C","P77":"G","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,G,H,I,J,K":{"P74":"C","P77":"G","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,C,F,I,J,K,L":{"P74":"C","P77":"F","P79":"I","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,F,H,J,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,F,H,I,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"I","P87":"L"},"A,B,C,F,H,I,J,L":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,F,H,I,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,C,F,G,J,K,L":{"P74":"F","P77":"G","P79":"C","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,F,G,I,K,L":{"P74":"C","P77":"F","P79":"I","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,F,G,I,J,L":{"P74":"F","P77":"G","P79":"C","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,F,G,I,J,K":{"P74":"F","P77":"G","P79":"C","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,C,F,G,H,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,F,G,H,J,L":{"P74":"C","P77":"F","P79":"H","P80":"J","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,F,G,H,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"J"},"A,B,C,F,G,H,I,L":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,F,G,H,I,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,F,G,H,I,J":{"P74":"C","P77":"F","P79":"H","P80":"J","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,E,I,J,K,L":{"P74":"A","P77":"C","P79":"E","P80":"K","P81":"B","P82":"I","P85":"J","P87":"L"},"A,B,C,E,H,J,K,L":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,E,H,I,K,L":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"I","P87":"L"},"A,B,C,E,H,I,J,L":{"P74":"C","P77":"H","P79":"E","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,E,H,I,J,K":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,C,E,G,J,K,L":{"P74":"C","P77":"G","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,E,G,I,K,L":{"P74":"A","P77":"C","P79":"E","P80":"K","P81":"B","P82":"I","P85":"G","P87":"L"},"A,B,C,E,G,I,J,L":{"P74":"C","P77":"G","P79":"E","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,E,G,I,J,K":{"P74":"C","P77":"G","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,C,E,G,H,K,L":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,E,G,H,J,L":{"P74":"C","P77":"G","P79":"H","P80":"E","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,E,G,H,J,K":{"P74":"C","P77":"G","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,C,E,G,H,I,L":{"P74":"C","P77":"H","P79":"E","P80":"I","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,E,G,H,I,K":{"P74":"C","P77":"H","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,E,G,H,I,J":{"P74":"C","P77":"G","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,C,E,F,J,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,E,F,I,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"I","P87":"L"},"A,B,C,E,F,I,J,L":{"P74":"C","P77":"F","P79":"E","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,E,F,I,J,K":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,C,E,F,H,K,L":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"E","P87":"L"},"A,B,C,E,F,H,J,L":{"P74":"C","P77":"F","P79":"H","P80":"E","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,E,F,H,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,C,E,F,H,I,L":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"E","P87":"L"},"A,B,C,E,F,H,I,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"E","P87":"I"},"A,B,C,E,F,H,I,J":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,C,E,F,G,K,L":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,E,F,G,J,L":{"P74":"C","P77":"F","P79":"E","P80":"J","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,E,F,G,J,K":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"J"},"A,B,C,E,F,G,I,L":{"P74":"C","P77":"F","P79":"E","P80":"I","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,E,F,G,I,K":{"P74":"C","P77":"F","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,E,F,G,I,J":{"P74":"C","P77":"F","P79":"E","P80":"J","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,E,F,G,H,L":{"P74":"C","P77":"F","P79":"H","P80":"E","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,E,F,G,H,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,C,E,F,G,H,J":{"P74":"C","P77":"F","P79":"H","P80":"J","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,C,E,F,G,H,I":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,C,D,I,J,K,L":{"P74":"C","P77":"D","P79":"I","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,H,J,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,H,I,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"I","P87":"L"},"A,B,C,D,H,I,J,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,H,I,J,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,C,D,G,J,K,L":{"P74":"D","P77":"G","P79":"C","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,G,I,K,L":{"P74":"C","P77":"D","P79":"I","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,G,I,J,L":{"P74":"D","P77":"G","P79":"C","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,G,I,J,K":{"P74":"D","P77":"G","P79":"C","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,C,D,G,H,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,G,H,J,L":{"P74":"C","P77":"D","P79":"H","P80":"J","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,G,H,J,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"J"},"A,B,C,D,G,H,I,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,G,H,I,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,D,G,H,I,J":{"P74":"C","P77":"D","P79":"H","P80":"J","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,D,F,J,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,F,I,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"A","P85":"I","P87":"L"},"A,B,C,D,F,I,J,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,F,I,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,C,D,F,H,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"F","P87":"L"},"A,B,C,D,F,H,J,L":{"P74":"D","P77":"F","P79":"C","P80":"H","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,F,H,J,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"D"},"A,B,C,D,F,H,I,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"B","P82":"A","P85":"F","P87":"L"},"A,B,C,D,F,H,I,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"F","P87":"I"},"A,B,C,D,F,H,I,J":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"D"},"A,B,C,D,F,G,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,F,G,J,L":{"P74":"D","P77":"F","P79":"C","P80":"J","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,F,G,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"A","P85":"G","P87":"J"},"A,B,C,D,F,G,I,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,F,G,I,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,D,F,G,I,J":{"P74":"D","P77":"F","P79":"C","P80":"J","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,D,F,G,H,L":{"P74":"D","P77":"F","P79":"C","P80":"H","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,F,G,H,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"D"},"A,B,C,D,F,G,H,J":{"P74":"C","P77":"F","P79":"H","P80":"J","P81":"B","P82":"A","P85":"G","P87":"D"},"A,B,C,D,F,G,H,I":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"G","P87":"D"},"A,B,C,D,E,J,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,E,I,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"A","P85":"I","P87":"L"},"A,B,C,D,E,I,J,L":{"P74":"C","P77":"D","P79":"E","P80":"I","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,E,I,J,K":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"A","P85":"J","P87":"I"},"A,B,C,D,E,H,K,L":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"E","P87":"L"},"A,B,C,D,E,H,J,L":{"P74":"C","P77":"D","P79":"H","P80":"E","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,E,H,J,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,C,D,E,H,I,L":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"B","P82":"A","P85":"E","P87":"L"},"A,B,C,D,E,H,I,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"E","P87":"I"},"A,B,C,D,E,H,I,J":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,C,D,E,G,K,L":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,E,G,J,L":{"P74":"C","P77":"D","P79":"E","P80":"J","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,E,G,J,K":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"J"},"A,B,C,D,E,G,I,L":{"P74":"C","P77":"D","P79":"E","P80":"I","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,E,G,I,K":{"P74":"C","P77":"D","P79":"E","P80":"K","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,D,E,G,I,J":{"P74":"C","P77":"D","P79":"E","P80":"J","P81":"B","P82":"A","P85":"G","P87":"I"},"A,B,C,D,E,G,H,L":{"P74":"C","P77":"D","P79":"H","P80":"E","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,E,G,H,K":{"P74":"C","P77":"D","P79":"H","P80":"K","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,C,D,E,G,H,J":{"P74":"C","P77":"D","P79":"H","P80":"J","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,C,D,E,G,H,I":{"P74":"C","P77":"D","P79":"H","P80":"I","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,C,D,E,F,K,L":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"A","P85":"E","P87":"L"},"A,B,C,D,E,F,J,L":{"P74":"D","P77":"F","P79":"C","P80":"E","P81":"B","P82":"A","P85":"J","P87":"L"},"A,B,C,D,E,F,J,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,C,D,E,F,I,L":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"A","P85":"E","P87":"L"},"A,B,C,D,E,F,I,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"A","P85":"E","P87":"I"},"A,B,C,D,E,F,I,J":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"A","P85":"J","P87":"E"},"A,B,C,D,E,F,H,L":{"P74":"C","P77":"D","P79":"H","P80":"E","P81":"B","P82":"A","P85":"F","P87":"L"},"A,B,C,D,E,F,H,K":{"P74":"C","P77":"F","P79":"H","P80":"K","P81":"B","P82":"A","P85":"E","P87":"D"},"A,B,C,D,E,F,H,J":{"P74":"C","P77":"F","P79":"H","P80":"E","P81":"B","P82":"A","P85":"J","P87":"D"},"A,B,C,D,E,F,H,I":{"P74":"C","P77":"F","P79":"H","P80":"I","P81":"B","P82":"A","P85":"E","P87":"D"},"A,B,C,D,E,F,G,L":{"P74":"D","P77":"F","P79":"C","P80":"E","P81":"B","P82":"A","P85":"G","P87":"L"},"A,B,C,D,E,F,G,K":{"P74":"D","P77":"F","P79":"C","P80":"K","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,C,D,E,F,G,J":{"P74":"D","P77":"F","P79":"C","P80":"J","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,C,D,E,F,G,I":{"P74":"D","P77":"F","P79":"C","P80":"I","P81":"B","P82":"A","P85":"G","P87":"E"},"A,B,C,D,E,F,G,H":{"P74":"C","P77":"F","P79":"H","P80":"E","P81":"B","P82":"A","P85":"G","P87":"D"}};
+function asignarTerceros(top8){
+  const letras=top8.map(t=>letraGrupo(t.gi));
+  const key=[...letras].sort().join(',');
+  const fila=FIFA_TABLA[key];
+  if(!fila){ console.warn('Combinación no en tabla FIFA:',key); return asignarTercerosFallback(top8); }
+  const giMap={};
+  top8.forEach(t=>{ giMap[letraGrupo(t.gi)]=t; });
+  const asig={};
+  PARTIDOS_VAR.forEach(pv=>{ const letra=fila[pv.pnum]; asig[pv.pnum]=letra?(giMap[letra]||null):null; });
+  return asig;
+}
+function asignarTercerosFallback(top8){
+  const pvs=PARTIDOS_VAR,giMap={};
+  top8.forEach(t=>{giMap[t.gi]=t;});
+  const gis=top8.map(t=>t.gi),pAgi={},giAp={};
+  function aug(pnum,vis){const pv=pvs.find(p=>p.pnum===pnum);for(const gi of gis){if(vis.has(gi)||!pv.ok.includes(gi))continue;vis.add(gi);if(!(gi in giAp)||aug(giAp[gi],vis)){pAgi[pnum]=gi;giAp[gi]=pnum;return true;}}return false;}
+  pvs.forEach(pv=>aug(pv.pnum,new Set()));
+  const asig={};pvs.forEach(pv=>{asig[pv.pnum]=(pv.pnum in pAgi)?giMap[pAgi[pv.pnum]]:null;});return asig;
+}
+function ganadorCruce(est){if(!est||est.gl===null||est.gv===null)return null;if(est.gl>est.gv)return 'local';if(est.gv>est.gl)return 'visitante';return est.elegido||null;}
+function perdedorCruce(est){const g=ganadorCruce(est);if(!g)return null;return g==='local'?'visitante':'local';}
+
+function buildCrucesD16(){
+  const p=[],s=[],top8=get8TercerosEfectivos();
+  GRUPOS.forEach((_,gi)=>{const cl=getClasificados(gi);p.push({eq:cl.p1,gi});s.push({eq:cl.p2,gi});});
+  const asig=asignarTerceros(top8);
+  // Aplicar overrides manuales del admin
+  Object.keys(tercerosOverride).forEach(pnum=>{
+    const gi=tercerosOverride[pnum];
+    const t=top8.find(t=>t.gi===gi)||get8Terceros().find(t=>t.gi===gi);
+    if(t) asig[pnum]=t;
+  });
+  const f2=[{pnum:'P73',local:s[0],vis:s[1]},{pnum:'P78',local:s[4],vis:s[8]},{pnum:'P83',local:s[10],vis:s[11]},{pnum:'P88',local:s[3],vis:s[6]}];
+  const f12=[{pnum:'P75',local:p[5],vis:s[2]},{pnum:'P76',local:p[2],vis:s[5]},{pnum:'P84',local:p[7],vis:s[9]},{pnum:'P86',local:p[9],vis:s[7]}];
+  const vars=PARTIDOS_VAR.map(pv=>({pnum:pv.pnum,local:p[pv.pgr],vis:asig[pv.pnum]||null}));
+  return [...f2,...f12,...vars].sort((a,b)=>+a.pnum.slice(1)-+b.pnum.slice(1));
+}
+
 function getCruces(faseKey) {
-  const ef=estadoFase;
-  const gan=(fase,i)=>{ const c=getCruces(fase); if(!c||!c[i])return{eq:'?',gi:-1}; const est=ef[fase][i],lado=ganadorCruce(est); if(!lado)return{eq:'?',gi:-1}; return lado==='local'?c[i].local:c[i].vis; };
-  if(faseKey==='d16') return Array.from({length:16},(_,i)=>({pnum:`P${73+i}`,local:{eq:'?'},vis:{eq:'?'}})); // simplificado admin
+  const gan=(fase,i)=>{ const cr=getCruces(fase); if(!cr||!cr[i])return{eq:'?',gi:-1}; const est=estadoFase[fase][i],lado=ganadorCruce(est); if(!lado)return{eq:'?',gi:-1}; return lado==='local'?cr[i].local:(cr[i].vis||{eq:'?',gi:-1}); };
+  if(faseKey==='d16') return buildCrucesD16();
   if(faseKey==='oct') return Array.from({length:8},(_,i)=>({pnum:`P${89+i}`,local:gan('d16',i*2),vis:gan('d16',i*2+1)}));
   if(faseKey==='qtr') return Array.from({length:4},(_,i)=>({pnum:`P${97+i}`,local:gan('oct',i*2),vis:gan('oct',i*2+1)}));
   if(faseKey==='semi') return Array.from({length:2},(_,i)=>({pnum:`P${101+i}`,local:gan('qtr',i*2),vis:gan('qtr',i*2+1)}));
@@ -469,29 +615,13 @@ function getCruces(faseKey) {
   return [];
 }
 
-function calcMejoresTerceros() {
-  return GRUPOS.map((_,gi)=>{
-    const stats={};
-    GRUPOS[gi].equipos.forEach(e=>{stats[e]={pj:0,gf:0,gc:0,pts:0};});
-    resultados[gi].forEach((r,pi)=>{
-      if(r.local===null||r.visitante===null)return;
-      const [loc,vis]=GRUPOS[gi].partidos[pi],el=stats[loc],ev=stats[vis];
-      el.pj++;ev.pj++;el.gf+=r.local;el.gc+=r.visitante;ev.gf+=r.visitante;ev.gc+=r.local;
-      if(r.local>r.visitante){el.pts+=3;}else if(r.local<r.visitante){ev.pts+=3;}else{el.pts++;ev.pts++;}
-    });
-    const ord=Object.entries(stats).sort((a,b)=>(b[1].pts-a[1].pts)||(b[1].gf-b[1].gc-(a[1].gf-a[1].gc)));
-    const eq3=ord[2]?.[0]||GRUPOS[gi].equipos[2];
-    const s=stats[eq3];
-    return {eq:eq3,gi,pts:s.pts,dg:s.gf-s.gc,gf:s.gf};
-  }).sort((a,b)=>(b.pts-a.pts)||(b.dg-a.dg)||b.gf-a.gf).slice(0,8);
-}
-
 function renderFaseElim(faseKey) {
   const slide=document.getElementById(`slide-${faseKey}`); if(!slide) return;
   const colores={d16:'fase-d16',oct:'fase-oct',qtr:'fase-qtr',semi:'fase-semi',final:'fase-final'};
   const nombres={d16:'Dieciseisavos',oct:'Octavos',qtr:'Cuartos',semi:'Semifinales',final:'Gran Final'};
   const cruces=getCruces(faseKey);
-  const mejoresTerceros = faseKey==='d16' ? calcMejoresTerceros() : [];
+  // Para D16: calcular los 12 terceros para los desplegables
+  const todosTerceros = faseKey==='d16' ? get8Terceros() : []; // get8Terceros devuelve los 12 ordenados
 
   const crucesHTML = cruces.map((cr,i)=>{
     const est=estadoFase[faseKey][i]||{gl:null,gv:null,elegido:null};
@@ -504,14 +634,18 @@ function renderFaseElim(faseKey) {
     const esEmp=gl!==null&&gv!==null&&gl===gv;
     const esVar=faseKey==='d16'&&PNUMS_VAR.includes(cr.pnum);
 
-    // Select de terceros para partidos variables
+    // Select con los 12 terceros para partidos variables
     let selectHTML='';
-    if(esVar) {
-      const opcs = mejoresTerceros.map(t=>{
-        const sel=(tercerosOverride[cr.pnum]===t.gi)||(tercerosOverride[cr.pnum]==null&&vEq===t.eq)?'selected':'';
-        return `<option value="${t.gi}" ${sel}>${getFlagFor(t.eq)} ${t.eq} (${letraGrupo(t.gi)})</option>`;
+    if(esVar){
+      const opcs = todosTerceros.map((t,idx)=>{
+        const esMejor8 = idx < 8;
+        const sel = (tercerosOverride[cr.pnum]===t.gi)||(tercerosOverride[cr.pnum]==null&&vEq===t.eq) ? 'selected' : '';
+        const label = `${esMejor8?'✓':'✗'} ${idx+1}º ${getFlagFor(t.eq)} ${t.eq}`;
+        return `<option value="${t.gi}" ${sel}>${label}</option>`;
       }).join('');
-      selectHTML=`<select class="tercero-select" onclick="event.stopPropagation()" onchange="cambiarTerceroD16('${cr.pnum}',this.value)"><option value="">– auto –</option>${opcs}</select>`;
+      selectHTML=`<select class="tercero-select" onclick="event.stopPropagation()" onchange="cambiarTerceroD16('${cr.pnum}',this.value)">
+        <option value="">– auto –</option>${opcs}
+      </select>`;
     }
 
     return `<div>
@@ -528,9 +662,9 @@ function renderFaseElim(faseKey) {
           </div>
         </div>
         <div class="cruce-eq vis ${clV}" onclick="${esVar?'':("clickElim('"+faseKey+"',"+i+",'visitante')")}">
-          <span class="ceq-label">${cr.pnum}${esVar?' · 3º':''}</span>
+          <span class="ceq-label">${cr.pnum}${esVar?' 3º':''}</span>
           ${selectHTML}
-          <span class="ceq-nombre"><span class="bf">${getFlagFor(vEq)}</span>${vEq}</span>
+          ${!esVar?`<span class="ceq-nombre"><span class="bf">${getFlagFor(vEq)}</span>${vEq}</span>`:''}
         </div>
       </div>
       <div class="empate-hint${esEmp&&!est.elegido?' visible':''}" id="hint-${faseKey}-${i}">Empate — toca el equipo que pasa</div>
@@ -539,23 +673,6 @@ function renderFaseElim(faseKey) {
 
   slide.innerHTML=`<div class="fase-header ${colores[faseKey]}"><button class="nav-btn" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2)" onclick="irA(idx-1)">◀</button><span class="grupo-header-titulo">⚽ ${nombres[faseKey]}</span><button class="nav-btn" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2)" onclick="irA(idx+1)">▶</button></div>
     <div class="cruces-card"><div class="cruces-cab">Introduce los resultados reales</div>${crucesHTML}</div>`;
-  slide.querySelectorAll('.cruce-score').forEach(inp=>{
-    inp.addEventListener('input',e=>{
-      const fase=e.target.dataset.fase,ii=+e.target.dataset.idx,lado=e.target.dataset.lado;
-      if(!estadoFase[fase][ii])estadoFase[fase][ii]={gl:null,gv:null,elegido:null};
-      const val=e.target.value===''?null:Math.max(0,+e.target.value);
-      if(lado==='local')estadoFase[fase][ii].gl=val;else estadoFase[fase][ii].gv=val;
-      if(estadoFase[fase][ii].gl!==null&&estadoFase[fase][ii].gv!==null&&estadoFase[fase][ii].gl!==estadoFase[fase][ii].gv) estadoFase[fase][ii].elegido=null;
-      renderFaseElim(fase); marcarPendiente();
-    });
-  });
-}
-
-function cambiarTerceroD16(pnum, giStr) {
-  if(giStr==='') { delete tercerosOverride[pnum]; }
-  else { tercerosOverride[pnum] = parseInt(giStr); }
-  marcarPendiente();
-  renderFaseElim('d16');
 }
 
 function clickElim(faseKey,i,lado){
@@ -571,7 +688,7 @@ function buildSlides(){
   const track=document.getElementById('track'),dotsEl=document.getElementById('dots');
   GRUPOS.forEach((g,gi)=>{
     const slide=document.createElement('div');slide.className='grupo-slide';slide.id=`slide-${gi}`;
-    slide.innerHTML=`<div class="grupo-header pendiente" id="hdr-${gi}"><button class="nav-btn" onclick="irA(idx-1)">◀</button><span class="grupo-header-titulo">${g.nombre}</span><button class="nav-btn" onclick="irA(idx+1)">▶</button></div><div class="partidos-card" id="pc-${gi}"></div>`;
+    slide.innerHTML=`<div class="grupo-header pendiente" id="hdr-${gi}"><button class="nav-btn" onclick="irA(idx-1)">◀</button><span class="grupo-header-titulo">${g.nombre}</span><button class="nav-btn" onclick="irA(idx+1)">▶</button></div><div class="partidos-card" id="pc-${gi}"></div><div class="clasificacion-card"><div class="clas-cabecera"><span class="clas-titulo">Clasificación real</span><span class="empate-badge" id="badge-${gi}">⚠ Deshaz los empates</span></div><table class="clas-tabla"><thead><tr><th></th><th>Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>Pts</th></tr></thead><tbody id="cb-${gi}"></tbody></table></div>`;
     track.appendChild(slide);
     const dot=document.createElement('div');dot.className='dot';dot.addEventListener('click',()=>irA(gi));dotsEl.appendChild(dot);
   });
@@ -580,98 +697,12 @@ function buildSlides(){
     const dot=document.createElement('div');dot.className='dot fase';dot.addEventListener('click',()=>irA(GRUPOS.length+fi));dotsEl.appendChild(dot);
   });
   buildTablaPosiciones(POS_DEFAULT);
-  GRUPOS.forEach((_,gi)=>renderPartidos(gi));
+  GRUPOS.forEach((_,gi)=>{renderPartidos(gi);renderTabla(gi);});
   irA(0);
   cargarTodo();
 }
 
-// ===== BOTTOM SHEET =====
-const MARCADORES_BS = [[0,0],[0,1],[1,0],[0,2],[2,0],[0,3],[3,0],[0,4],[4,0],[1,1],[1,2],[2,1],[1,3],[3,1],[1,4],[4,1],[2,2],[2,3],[3,2],[2,4],[4,2],[3,3],[3,4],[4,3],[4,4]];
-let bsCtx = null;
-
-function abrirBS(gi, pi, localEq, visEq, glActual, gvActual) {
-  bsCtx = {gi, pi};
-  document.getElementById('bs-titulo').textContent = `${localEq} vs ${visEq}`;
-  actualizarBSDisplay(glActual, gvActual);
-  renderBSGrid(glActual, gvActual);
-  document.getElementById('bs-overlay').classList.add('visible');
-  document.getElementById('bs-sheet').classList.add('visible');
-}
-
-function abrirBSElim(faseKey, cruceidx, localEq, visEq, glActual, gvActual) {
-  bsCtx = {faseKey, cruceidx, tipo:'elim'};
-  document.getElementById('bs-titulo').textContent = `${localEq} vs ${visEq}`;
-  actualizarBSDisplay(glActual, gvActual);
-  renderBSGrid(glActual, gvActual);
-  document.getElementById('bs-overlay').classList.add('visible');
-  document.getElementById('bs-sheet').classList.add('visible');
-}
-
-function cerrarBS() {
-  document.getElementById('bs-overlay').classList.remove('visible');
-  document.getElementById('bs-sheet').classList.remove('visible');
-  bsCtx = null;
-}
-
-function actualizarBSDisplay(gl, gv) {
-  document.getElementById('bs-local-display').textContent = gl !== null ? gl : '–';
-  document.getElementById('bs-vis-display').textContent   = gv !== null ? gv : '–';
-}
-
-function renderBSGrid(glActual, gvActual) {
-  const grid = document.getElementById('bs-grid');
-  grid.innerHTML = MARCADORES_BS.map(([gl,gv]) => {
-    const sel = gl===glActual && gv===gvActual ? ' seleccionado' : '';
-    return `<button class="bs-btn${sel}" onclick="elegirMarcador(${gl},${gv})">${gl}–${gv}</button>`;
-  }).join('');
-  const eL = document.getElementById('bs-extra-local');
-  const eV = document.getElementById('bs-extra-vis');
-  eL.innerHTML = [5,6,7,8,9].map(n=>`<button class="bs-extra-btn${n===glActual&&glActual>=5?' sel-local':''}" onclick="elegirGolExtra('local',${n})">${n}</button>`).join('');
-  eV.innerHTML = [5,6,7,8,9].map(n=>`<button class="bs-extra-btn${n===gvActual&&gvActual>=5?' sel-vis':''}" onclick="elegirGolExtra('vis',${n})">${n}</button>`).join('');
-}
-
-function elegirGolExtra(lado, n) {
-  if(!bsCtx) return;
-  let gl, gv;
-  if(bsCtx.tipo==='elim') { const e=estadoFase[bsCtx.faseKey][bsCtx.cruceidx]||{gl:null,gv:null}; gl=e.gl; gv=e.gv; }
-  else { gl=resultados[bsCtx.gi][bsCtx.pi].local; gv=resultados[bsCtx.gi][bsCtx.pi].visitante; }
-  if(lado==='local') gl=n; else gv=n;
-  elegirMarcador(gl, gv);
-}
-
-function elegirMarcador(gl, gv) {
-  if(!bsCtx) return;
-  if(bsCtx.tipo==='elim') {
-    const fase=bsCtx.faseKey, ii=bsCtx.cruceidx;
-    if(!estadoFase[fase][ii]) estadoFase[fase][ii]={gl:null,gv:null,elegido:null};
-    estadoFase[fase][ii].gl=gl; estadoFase[fase][ii].gv=gv;
-    if(gl!==null&&gv!==null&&gl!==gv) estadoFase[fase][ii].elegido=null;
-    actualizarBSDisplay(gl,gv); renderBSGrid(gl,gv);
-    renderFaseElim(fase); marcarPendiente();
-  } else {
-    const {gi,pi}=bsCtx;
-    resultados[gi][pi].local=gl; resultados[gi][pi].visitante=gv;
-    actualizarBSDisplay(gl,gv); renderBSGrid(gl,gv);
-    document.querySelectorAll(`.score-input[data-gi="${gi}"][data-pi="${pi}"]`).forEach(inp=>{
-      inp.value = inp.dataset.lado==='local'?(gl!==null?gl:''):(gv!==null?gv:'');
-    });
-    const ok=resultados[gi].every(r=>r.local!==null&&r.visitante!==null);
-    document.getElementById(`hdr-${gi}`).classList.toggle('pendiente',!ok);
-    document.getElementById(`hdr-${gi}`).classList.toggle('completo',ok);
-    marcarPendiente();
-  }
-}
-
-let bsStartY=0;
-
-document.addEventListener('DOMContentLoaded', () => {
-  wrapper = document.getElementById('wrapper');
-  wrapper.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;},{passive:true});
-  wrapper.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-startX;if(Math.abs(dx)>40)irA(dx<0?idx+1:idx-1);});
-  buildSlides();
-  document.getElementById('bs-sheet').addEventListener('touchstart',e=>{bsStartY=e.touches[0].clientY;},{passive:true});
-  document.getElementById('bs-sheet').addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-bsStartY>60)cerrarBS();});
-});
+buildSlides();
 
 // ── ESTADO DEL TORNEO ──
 let estadoTorneoAdmin = 'abierto';
@@ -712,6 +743,130 @@ async function cambiarEstadoTorneo(nuevoEstado) {
 }
 
 cargarEstadoTorneoAdmin();
+
+// ===== BOTTOM SHEET =====
+const MARCADORES_BS=[[0,0],[0,1],[1,0],[0,2],[2,0],[0,3],[3,0],[0,4],[4,0],[1,1],[1,2],[2,1],[1,3],[3,1],[1,4],[4,1],[2,2],[2,3],[3,2],[2,4],[4,2],[3,3],[3,4],[4,3],[4,4]];
+let bsCtx=null,bsStartY=0;
+
+function abrirBS(gi,pi,localEq,visEq,gl,gv){
+  bsCtx={gi,pi};
+  document.getElementById('bs-titulo').textContent=`${localEq} vs ${visEq}`;
+  actualizarBSDisplay(gl,gv);renderBSGrid(gl,gv);
+  document.getElementById('bs-overlay').classList.add('visible');
+  document.getElementById('bs-sheet').classList.add('visible');
+  actualizarBSNavBtns();
+}
+function abrirBSElim(faseKey,cruceidx,localEq,visEq,gl,gv){
+  bsCtx={faseKey,cruceidx,tipo:'elim'};
+  document.getElementById('bs-titulo').textContent=`${localEq} vs ${visEq}`;
+  actualizarBSDisplay(gl,gv);renderBSGrid(gl,gv);
+  document.getElementById('bs-overlay').classList.add('visible');
+  document.getElementById('bs-sheet').classList.add('visible');
+  actualizarBSNavBtns();
+}
+function cerrarBS(){
+  document.getElementById('bs-overlay').classList.remove('visible');
+  document.getElementById('bs-sheet').classList.remove('visible');
+  bsCtx=null;
+}
+function navegarBS(dir){
+  if(!bsCtx)return;
+  if(bsCtx.tipo==='elim'){
+    const fase=bsCtx.faseKey,cruces=getCruces(fase),ni=bsCtx.cruceidx+dir;
+    if(ni<0||ni>=cruces.length)return;
+    const cr=cruces[ni],lEq=cr.local?.eq||'?',vEq=cr.vis?.eq||'?';
+    const est=estadoFase[fase][ni]||{gl:null,gv:null};
+    bsCtx={faseKey:fase,cruceidx:ni,tipo:'elim'};
+    document.getElementById('bs-titulo').textContent=`${lEq} vs ${vEq}`;
+    actualizarBSDisplay(est.gl,est.gv);renderBSGrid(est.gl,est.gv);
+  } else {
+    const gi=bsCtx.gi,np=bsCtx.pi+dir;
+    if(np<0||np>=GRUPOS[gi].partidos.length)return;
+    const par=GRUPOS[gi].partidos[np],r=resultados[gi][np];
+    bsCtx={gi,pi:np};
+    document.getElementById('bs-titulo').textContent=`${par[0]} vs ${par[1]}`;
+    actualizarBSDisplay(r.local,r.visitante);renderBSGrid(r.local,r.visitante);
+  }
+  actualizarBSNavBtns();
+}
+function actualizarBSNavBtns(){
+  if(!bsCtx)return;
+  const prev=document.getElementById('bs-btn-prev'),next=document.getElementById('bs-btn-next');
+  if(!prev||!next)return;
+  if(bsCtx.tipo==='elim'){
+    const cruces=getCruces(bsCtx.faseKey);
+    prev.disabled=bsCtx.cruceidx<=0;next.disabled=bsCtx.cruceidx>=cruces.length-1;
+  } else {
+    prev.disabled=bsCtx.pi<=0;next.disabled=bsCtx.pi>=GRUPOS[bsCtx.gi].partidos.length-1;
+  }
+}
+function actualizarBSDisplay(gl,gv){
+  document.getElementById('bs-local-display').textContent=gl!==null?gl:'–';
+  document.getElementById('bs-vis-display').textContent=gv!==null?gv:'–';
+}
+function renderBSGrid(glA,gvA){
+  document.getElementById('bs-grid').innerHTML=MARCADORES_BS.map(([gl,gv])=>`<button class="bs-btn${gl===glA&&gv===gvA?' seleccionado':''}" onclick="elegirMarcador(${gl},${gv})">${gl}–${gv}</button>`).join('');
+  const eL=document.getElementById('bs-extra-local'),eV=document.getElementById('bs-extra-vis');
+  eL.innerHTML=[5,6,7,8,9].map(n=>`<button class="bs-extra-btn${n===glA&&glA>=5?' sel-local':''}" onclick="elegirGolExtra('local',${n})">${n}</button>`).join('');
+  eV.innerHTML=[5,6,7,8,9].map(n=>`<button class="bs-extra-btn${n===gvA&&gvA>=5?' sel-vis':''}" onclick="elegirGolExtra('vis',${n})">${n}</button>`).join('');
+}
+function elegirGolExtra(lado,n){
+  if(!bsCtx)return;
+  let gl,gv;
+  if(bsCtx.tipo==='elim'){const e=estadoFase[bsCtx.faseKey][bsCtx.cruceidx]||{gl:null,gv:null};gl=e.gl;gv=e.gv;}
+  else{gl=resultados[bsCtx.gi][bsCtx.pi].local;gv=resultados[bsCtx.gi][bsCtx.pi].visitante;}
+  if(lado==='local')gl=n;else gv=n;
+  elegirMarcador(gl,gv);
+}
+function elegirMarcador(gl,gv){
+  if(!bsCtx)return;
+  if(bsCtx.tipo==='elim'){
+    const fase=bsCtx.faseKey,ii=bsCtx.cruceidx;
+    if(!estadoFase[fase][ii])estadoFase[fase][ii]={gl:null,gv:null,elegido:null};
+    estadoFase[fase][ii].gl=gl;estadoFase[fase][ii].gv=gv;
+    if(gl!==null&&gv!==null&&gl!==gv)estadoFase[fase][ii].elegido=null;
+    actualizarBSDisplay(gl,gv);renderBSGrid(gl,gv);
+    renderFaseElim(fase);marcarPendiente();
+  } else {
+    const{gi,pi}=bsCtx;
+    resultados[gi][pi].local=gl;resultados[gi][pi].visitante=gv;
+    actualizarBSDisplay(gl,gv);renderBSGrid(gl,gv);
+    document.querySelectorAll(`.score-input[data-gi="${gi}"][data-pi="${pi}"]`).forEach(inp=>{
+      inp.value=inp.dataset.lado==='local'?(gl!==null?gl:''):(gv!==null?gv:'');
+    });
+    renderTabla(gi);marcarPendiente();
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const bsSheet=document.getElementById('bs-sheet');
+  if(bsSheet){
+    bsSheet.addEventListener('touchstart',e=>{bsStartY=e.touches[0].clientY;},{passive:true});
+    bsSheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-bsStartY>60)cerrarBS();});
+  }
+});
 </script>
+
+<div class="bs-overlay" id="bs-overlay" onclick="cerrarBS()"></div>
+<div class="bs-sheet" id="bs-sheet">
+  <div class="bs-handle"></div>
+  <div class="bs-header">
+    <button class="bs-nav-btn" id="bs-btn-prev" onclick="navegarBS(-1)">◀</button>
+    <div class="bs-header-center">
+      <div class="bs-titulo" id="bs-titulo">Elige el resultado</div>
+    </div>
+    <button class="bs-nav-btn" id="bs-btn-next" onclick="navegarBS(1)">▶</button>
+  </div>
+  <div class="bs-marcador-actual">
+    <span class="bs-score-display" id="bs-local-display">–</span>
+    <span class="bs-sep">:</span>
+    <span class="bs-score-display" id="bs-vis-display">–</span>
+  </div>
+  <div class="bs-grid" id="bs-grid"></div>
+  <div class="bs-extra" id="bs-extra">
+    <div class="bs-extra-grupo" id="bs-extra-local"></div>
+    <span class="bs-extra-sep">—</span>
+    <div class="bs-extra-grupo" id="bs-extra-vis"></div>
+  </div>
+</div>
 </body>
 </html>
