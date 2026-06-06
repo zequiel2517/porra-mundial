@@ -423,37 +423,45 @@ function calcPuntos(pron, real, reglas) {
           if(orden[0])posObj[orden[0]]='D';
           if(orden[1])posObj[orden[1]]='D';
         });
-        // Avances por fase
-        const avance={'d16':'O','oct':'C','qtr':'4'};
-        ['d16','oct','qtr'].forEach(fk=>{
-          (bracket[fk]||[]).forEach(cr=>{
-            const g=ganadorCruce(cr.est);
-            if(!g)return;
-            const ganEq=g==='local'?cr.local:cr.vis;
-            if(ganEq&&ganEq!=='?')posObj[ganEq]=avance[fk];
-          });
+        // Perdedores de d16 → quedan en 'D', ganadores → 'O'
+        (bracket.d16||[]).forEach(cr=>{
+          const g=ganadorCruce(cr.est); if(!g)return;
+          const gan=g==='local'?cr.local:cr.vis, per=g==='local'?cr.vis:cr.local;
+          if(gan&&gan!=='?')posObj[gan]='O';
+          // perdedor queda en 'D' (ya asignado)
         });
-        // Semis
+        // Perdedores de oct → 'O', ganadores → 'C'
+        (bracket.oct||[]).forEach(cr=>{
+          const g=ganadorCruce(cr.est); if(!g)return;
+          const gan=g==='local'?cr.local:cr.vis, per=g==='local'?cr.vis:cr.local;
+          if(gan&&gan!=='?')posObj[gan]='C';
+          if(per&&per!=='?')posObj[per]='O';
+        });
+        // Perdedores de qtr → 'C', ganadores → provisional semi
+        (bracket.qtr||[]).forEach(cr=>{
+          const g=ganadorCruce(cr.est); if(!g)return;
+          const per=g==='local'?cr.vis:cr.local;
+          if(per&&per!=='?')posObj[per]='C';
+          // ganador: se actualiza en semi
+        });
+        // Semis: perdedores → al menos 3er o 4º (se decide con tercer partido)
         (bracket.semi||[]).forEach(cr=>{
           const g=ganadorCruce(cr.est); if(!g)return;
-          const gan=g==='local'?cr.local:cr.vis;
-          const per=g==='local'?cr.vis:cr.local;
-          if(gan&&gan!=='?')posObj[gan]='2'; // al menos llega a final
-          if(per&&per!=='?')posObj[per]='3'; // al menos llega a 3er puesto
+          const gan=g==='local'?cr.local:cr.vis, per=g==='local'?cr.vis:cr.local;
+          if(gan&&gan!=='?')posObj[gan]='2'; // provisional: final
+          if(per&&per!=='?')posObj[per]='4'; // provisional: 3er o 4º
         });
-        // Tercer puesto
+        // Tercer puesto: resuelve 3º y 4º
         (bracket.tercer||[]).forEach(cr=>{
           const g=ganadorCruce(cr.est); if(!g)return;
-          const gan=g==='local'?cr.local:cr.vis;
-          const per=g==='local'?cr.vis:cr.local;
+          const gan=g==='local'?cr.local:cr.vis, per=g==='local'?cr.vis:cr.local;
           if(gan&&gan!=='?')posObj[gan]='3';
           if(per&&per!=='?')posObj[per]='4';
         });
-        // Final
+        // Final: resuelve 1º y 2º
         (bracket.final||[]).forEach(cr=>{
           const g=ganadorCruce(cr.est); if(!g)return;
-          const gan=g==='local'?cr.local:cr.vis;
-          const per=g==='local'?cr.vis:cr.local;
+          const gan=g==='local'?cr.local:cr.vis, per=g==='local'?cr.vis:cr.local;
           if(gan&&gan!=='?')posObj[gan]='1';
           if(per&&per!=='?')posObj[per]='2';
         });
