@@ -455,11 +455,9 @@ function calcPuntos(pron, real, reglas) {
       // Para el pronóstico: simulamos el bracket completo con los resultados del pronóstico
       // ya que estadoFase del pronóstico no tiene nombres de equipos
       const simularBracketPron = (pron, posObj) => {
-        console.log('simularBracketPron iniciada, res grupos:', pron.resultados?.length, 'ef keys:', Object.keys(pron.estadoFase||{}));
         const res = pron.resultados||[];
         const ef = pron.estadoFase||{};
         GRUPOS.forEach(g=>g.equipos.forEach(eq=>{posObj[eq]='G';}));
-        console.log('posObj tras grupos:', Object.keys(posObj).length, 'equipos');
 
         // Clasificados de grupos
         const p1=[],p2=[],t3=[];
@@ -564,8 +562,6 @@ function calcPuntos(pron, real, reglas) {
       };
 
       simularBracketPron(pron, posP);
-      console.log('posReal:', JSON.stringify(posReal));
-      console.log('posP:', JSON.stringify(posP));
 
       const tabla = config.r4.tabla;
       GRUPOS.forEach(g=>g.equipos.forEach(eq=>{
