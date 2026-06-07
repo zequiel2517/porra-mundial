@@ -606,13 +606,35 @@ function buildCrucesD16(){
 }
 
 function getCruces(faseKey) {
-  const gan=(fase,i)=>{ const cr=getCruces(fase); if(!cr||!cr[i])return{eq:'?',gi:-1}; const est=estadoFase[fase][i],lado=ganadorCruce(est); if(!lado)return{eq:'?',gi:-1}; return lado==='local'?cr[i].local:(cr[i].vis||{eq:'?',gi:-1}); };
+  const gan=(fase,i)=>{ 
+    const est=estadoFase[fase]?.[i]; 
+    const lado=ganadorCruce(est); 
+    if(!lado)return{eq:'?',gi:-1}; 
+    // Usar nombres guardados en estadoFase si existen
+    if(est?.local && est?.vis) {
+      return lado==='local'?{eq:est.local,gi:-1}:{eq:est.vis,gi:-1};
+    }
+    const cr=getCruces(fase); 
+    if(!cr||!cr[i])return{eq:'?',gi:-1}; 
+    return lado==='local'?cr[i].local:(cr[i].vis||{eq:'?',gi:-1}); 
+  };
   if(faseKey==='d16') return buildCrucesD16();
   if(faseKey==='oct') return Array.from({length:8},(_,i)=>({pnum:`P${89+i}`,local:gan('d16',i*2),vis:gan('d16',i*2+1)}));
   if(faseKey==='qtr') return Array.from({length:4},(_,i)=>({pnum:`P${97+i}`,local:gan('oct',i*2),vis:gan('oct',i*2+1)}));
   if(faseKey==='semi') return Array.from({length:2},(_,i)=>({pnum:`P${101+i}`,local:gan('qtr',i*2),vis:gan('qtr',i*2+1)}));
   if(faseKey==='tercer') {
-    const per=(fase,i)=>{ const cr=getCruces(fase); if(!cr||!cr[i])return{eq:'?',gi:-1}; const est=estadoFase[fase][i],lado=ganadorCruce(est); if(!lado)return{eq:'?',gi:-1}; return lado==='local'?(cr[i].vis||{eq:'?',gi:-1}):cr[i].local; };
+    const per=(fase,i)=>{ 
+      const est=estadoFase[fase]?.[i]; 
+      const lado=ganadorCruce(est); 
+      if(!lado)return{eq:'?',gi:-1}; 
+      // Usar nombres guardados en estadoFase si existen
+      if(est?.local && est?.vis) {
+        return lado==='local'?{eq:est.vis,gi:-1}:{eq:est.local,gi:-1};
+      }
+      const cr=getCruces(fase); 
+      if(!cr||!cr[i])return{eq:'?',gi:-1}; 
+      return lado==='local'?(cr[i].vis||{eq:'?',gi:-1}):cr[i].local; 
+    };
     return [{pnum:'3er Puesto',local:per('semi',0),vis:per('semi',1)}];
   }
   if(faseKey==='final') return [{pnum:'FINAL',local:gan('semi',0),vis:gan('semi',1)}];
@@ -686,9 +708,7 @@ function renderFaseElim(faseKey) {
       if(gl!==null&&gv!==null){if(gl>gv)gan='local';else if(gv>gl)gan='visitante';else gan=est.elegido||null;}
       const clL=gan==='local'?'ganador':gan==='visitante'?'perdedor':'';
       const clV=gan==='visitante'?'ganador':gan==='local'?'perdedor':'';
-      const lEq=(cr.local?.eq||cr.local||'?').replace(/'/g,"\'");
-      const vEq=(cr.vis?.eq||cr.vis||'?').replace(/'/g,"\'");
-      const glVal=gl!==null?gl:'null', gvVal=gv!==null?gv:'null';
+      const lEq=cr.local?.eq||cr.local||'?', vEq=cr.vis?.eq||cr.vis||'?';
       const esEmp=gl!==null&&gv!==null&&gl===gv;
       return `<div>
         <div class="cruce-row">
@@ -697,7 +717,7 @@ function renderFaseElim(faseKey) {
             <span class="ceq-nombre"><span class="bf">${getFlagFor(lEq)}</span>${lEq}</span>
           </div>
           <div class="cruce-centro">
-            <div class="cruce-marcador" style="cursor:pointer" onclick="abrirBSElim('tercer',${i},'${lEq}','${vEq}',${glVal},${gvVal})">
+            <div class="cruce-marcador" style="cursor:pointer" onclick="abrirBSElim('tercer',${i},'${lEq}','${vEq}',${gl},${gv})">
               <input class="cruce-score" type="number" min="0" max="30" value="${gl!==null?gl:''}" placeholder="–" data-fase="tercer" data-idx="${i}" data-lado="local" readonly style="cursor:pointer;pointer-events:none">
               <span class="cruce-sep">:</span>
               <input class="cruce-score" type="number" min="0" max="30" value="${gv!==null?gv:''}" placeholder="–" data-fase="tercer" data-idx="${i}" data-lado="vis" readonly style="cursor:pointer;pointer-events:none">
