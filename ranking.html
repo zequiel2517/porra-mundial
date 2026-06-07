@@ -128,7 +128,7 @@ let miUserId = null;
 function calcStatsGrupo(gi, resultadosArr) {
   const g = GRUPOS[gi], stats = {};
   g.equipos.forEach(e => { stats[e]={pj:0,pg:0,pe:0,pp:0,gf:0,gc:0,pts:0}; });
-  resultadosArr[gi].forEach((r,pi) => {
+  (resultadosArr[gi]||[]).forEach((r,pi) => {
     if(r.local===null||r.visitante===null) return;
     const [loc,vis]=g.partidos[pi],el=stats[loc],ev=stats[vis],gl=r.local,gv=r.visitante;
     el.pj++;ev.pj++;el.gf+=gl;el.gc+=gv;ev.gf+=gv;ev.gc+=gl;
