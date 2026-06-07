@@ -19,7 +19,7 @@
     .topbar-titulo { font-size: 14px; font-weight: 600; }
     .nav-link { color: #94a3b8; font-size: 12px; text-decoration: none; border: 1px solid #475569; border-radius: 6px; padding: 4px 10px; white-space: nowrap; }
 
-    .controles { background: var(--card); border-bottom: 0.5px solid var(--border); padding: 10px 16px; display: flex; gap: 16px; align-items: center; position: sticky; top: 49px; z-index: 99; }
+    .controles { background: var(--card); border-bottom: 0.5px solid var(--border); padding: 8px 16px; display: flex; gap: 16px; align-items: center; position: sticky; top: 49px; z-index: 99; }
     .check-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text2); cursor: pointer; user-select: none; }
     .check-label input { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; }
 
@@ -30,23 +30,22 @@
     table { border-collapse: collapse; min-width: 100%; font-size: 12px; }
 
     /* Cabecera jugadores */
-    .th-jugador { background: #1e293b; color: #f1f5f9; padding: 8px 10px; text-align: center; font-size: 11px; font-weight: 600; white-space: nowrap; min-width: 80px; position: sticky; top: 98px; z-index: 50; }
+    .th-jugador { background: #1e293b; color: #f1f5f9; padding: 6px 6px; text-align: center; font-size: 10px; font-weight: 600; white-space: nowrap; min-width: 56px; position: sticky; top: 88px; z-index: 50; border-left: 0.5px solid #334155; }
     .th-jugador.yo { background: #1e40af; }
-    .th-partido { background: #f8fafc; padding: 8px 10px; text-align: left; font-size: 11px; color: var(--text2); font-weight: 600; white-space: nowrap; position: sticky; left: 0; z-index: 40; min-width: 160px; border-right: 2px solid var(--border2); }
-    .th-partido-header { background: #1e293b; color: #94a3b8; padding: 8px 10px; font-size: 11px; font-weight: 600; position: sticky; left: 0; top: 98px; z-index: 60; border-right: 2px solid #334155; }
+    .th-partido-header { background: #1e293b; color: #94a3b8; padding: 8px 10px; font-size: 11px; font-weight: 600; position: sticky; left: 0; top: 88px; z-index: 60; border-right: 2px solid #334155; min-width: 110px; }
 
     /* Filas */
     .tr-grupo-header td { background: #1e293b; color: #f1f5f9; font-size: 11px; font-weight: 700; padding: 6px 10px; letter-spacing: 0.05em; }
     .tr-grupo-header .td-partido { position: sticky; left: 0; z-index: 30; background: #1e293b; border-right: 2px solid #334155; }
 
-    .td-partido { position: sticky; left: 0; z-index: 20; background: var(--card); border-right: 2px solid var(--border2); padding: 6px 10px; white-space: nowrap; }
+    .td-partido { position: sticky; left: 0; z-index: 20; background: var(--card); border-right: 2px solid var(--border2); padding: 5px 8px; white-space: nowrap; min-width: 110px; }
     .partido-real { display: flex; align-items: center; gap: 4px; }
     .eq-nombre { font-size: 11px; color: var(--text2); max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .marcador-real { font-size: 12px; font-weight: 700; color: var(--text); background: #f1f5f9; border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
     .marcador-real.sin-dato { color: var(--text3); background: none; }
 
     /* Celdas de pronóstico */
-    .td-pron { padding: 4px 6px; text-align: center; border-left: 0.5px solid var(--border); min-width: 72px; vertical-align: middle; }
+    .td-pron { padding: 4px 4px; text-align: center; border-left: 0.5px solid var(--border); min-width: 52px; vertical-align: middle; }
     .pron-marcador { font-size: 13px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 3px; }
     .pron-pts { font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 5px; margin-top: 2px; display: inline-block; }
     .pts-4  { background: #14532d; color: #fff; }
@@ -231,9 +230,7 @@ function renderTabla() {
         html += `<td class="td-partido">
           <div class="partido-real">
             <span>${F(par[0])}</span>
-            <span class="eq-nombre">${par[0]}</span>
             <span class="marcador-real${sinReal?' sin-dato':''}">${marcReal}</span>
-            <span class="eq-nombre">${par[1]}</span>
             <span>${F(par[1])}</span>
           </div>
         </td>`;
@@ -275,9 +272,7 @@ function renderTabla() {
         html += `<td class="td-partido">
           <div class="partido-real">
             <span>${F(lEq)}</span>
-            <span class="eq-nombre">${lEq}</span>
             <span class="marcador-real${sinReal?' sin-dato':''}">${marcReal}</span>
-            <span class="eq-nombre">${vEq}</span>
             <span>${F(vEq)}</span>
           </div>
         </td>`;
@@ -293,7 +288,6 @@ function renderTabla() {
           const cls = pts===null?'pts-0':pts===maxPts?`pts-${maxPts}`:pts>=(reglas.r3?.emparej||5)?'pts-6':pts>0?'pts-5':'pts-0';
 
           html += `<td class="td-pron">
-            <div style="font-size:10px;color:var(--text3)">${F(lEqP)}${lEqP.split(' ')[0]}-${F(vEqP)}${vEqP.split(' ')[0]}</div>
             <div class="pron-marcador">${ep.gl}<span style="color:var(--text3);font-size:10px">-</span>${ep.gv}</div>
             ${pts!==null?`<span class="pron-pts ${cls}">${pts>0?'+':''}${pts}</span>`:''}
           </td>`;
