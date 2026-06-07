@@ -451,6 +451,8 @@ function calcPuntos(pron, real, reglas) {
       };
 
       asignarPosConBracket(bracketR, real.resultados||[], posReal);
+      console.log('posReal:', JSON.stringify(posReal));
+      console.log('posP:', JSON.stringify(posP));
 
       // Para el pronóstico: simulamos el bracket completo con los resultados del pronóstico
       // ya que estadoFase del pronóstico no tiene nombres de equipos
