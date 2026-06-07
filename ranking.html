@@ -557,7 +557,11 @@ function calcPuntos(pron, real, reglas) {
         }
       };
 
-      simularBracketPron(pron, posP);
+      try {
+        simularBracketPron(pron, posP);
+      } catch(e) {
+        console.error('Error en simularBracketPron:', e.message, e.stack);
+      }
 
       const tabla = config.r4.tabla;
       GRUPOS.forEach(g=>g.equipos.forEach(eq=>{
