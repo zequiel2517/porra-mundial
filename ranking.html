@@ -276,59 +276,50 @@ function getClasificadosR(gi, resArr) {
 }
 
 // Reconstruir bracket completo desde resultados+estadoFase
-// Devuelve array de cruces por fase con equipos reales
+// Si estadoFase tiene local/vis guardados, los usa directamente (más preciso)
+// Si no, los reconstruye desde el bracket
 function buildBracket(resArr, faseData, tercerosOvr) {
   const bracket = {};
 
-  // D16
+  // D16: usar local/vis del estadoFase si están disponibles
   const crucesD16 = buildCrucesD16(resArr, tercerosOvr);
-  bracket.d16 = crucesD16.map((cr,i) => ({
-    local: cr.local?.eq||'?',
-    vis:   cr.vis?.eq||'?',
-    est:   faseData.d16?.[i]||{gl:null,gv:null,elegido:null}
-  }));
+  bracket.d16 = crucesD16.map((cr,i) => {
+    const est = faseData.d16?.[i]||{gl:null,gv:null,elegido:null};
+    return {
+      local: est.local || cr.local?.eq||'?',
+      vis:   est.vis   || cr.vis?.eq||'?',
+      est
+    };
+  });
 
-  // Función para obtener ganador de cruce por nombre de equipo
   const ganEq = (fase, i) => {
-    const cr = bracket[fase]?.[i];
-    if(!cr) return '?';
-    const g = ganadorCruce(cr.est);
-    if(!g) return '?';
+    const cr = bracket[fase]?.[i]; if(!cr) return '?';
+    const g = ganadorCruce(cr.est); if(!g) return '?';
     return g==='local' ? cr.local : cr.vis;
   };
   const perEq = (fase, i) => {
-    const cr = bracket[fase]?.[i];
-    if(!cr) return '?';
-    const g = ganadorCruce(cr.est);
-    if(!g) return '?';
+    const cr = bracket[fase]?.[i]; if(!cr) return '?';
+    const g = ganadorCruce(cr.est); if(!g) return '?';
     return g==='local' ? cr.vis : cr.local;
   };
 
-  // OCT
-  bracket.oct = Array.from({length:8},(_,i)=>({
-    local: ganEq('d16',i*2), vis: ganEq('d16',i*2+1),
-    est: faseData.oct?.[i]||{gl:null,gv:null,elegido:null}
-  }));
-  // QTR
-  bracket.qtr = Array.from({length:4},(_,i)=>({
-    local: ganEq('oct',i*2), vis: ganEq('oct',i*2+1),
-    est: faseData.qtr?.[i]||{gl:null,gv:null,elegido:null}
-  }));
-  // SEMI
-  bracket.semi = Array.from({length:2},(_,i)=>({
-    local: ganEq('qtr',i*2), vis: ganEq('qtr',i*2+1),
-    est: faseData.semi?.[i]||{gl:null,gv:null,elegido:null}
-  }));
-  // TERCER
-  bracket.tercer = [{
-    local: perEq('semi',0), vis: perEq('semi',1),
-    est: faseData.tercer?.[0]||{gl:null,gv:null,elegido:null}
-  }];
-  // FINAL
-  bracket.final = [{
-    local: ganEq('semi',0), vis: ganEq('semi',1),
-    est: faseData.final?.[0]||{gl:null,gv:null,elegido:null}
-  }];
+  // Para cada fase posterior: usar local/vis guardados si existen, sino reconstruir
+  const buildFase = (faseKey, n, localFn, visFn) => {
+    return Array.from({length:n},(_,i)=>{
+      const est = faseData[faseKey]?.[i]||{gl:null,gv:null,elegido:null};
+      return {
+        local: est.local || localFn(i),
+        vis:   est.vis   || visFn(i),
+        est
+      };
+    });
+  };
+
+  bracket.oct    = buildFase('oct',   8, i=>ganEq('d16',i*2),  i=>ganEq('d16',i*2+1));
+  bracket.qtr    = buildFase('qtr',   4, i=>ganEq('oct',i*2),  i=>ganEq('oct',i*2+1));
+  bracket.semi   = buildFase('semi',  2, i=>ganEq('qtr',i*2),  i=>ganEq('qtr',i*2+1));
+  bracket.tercer = buildFase('tercer',1, ()=>perEq('semi',0),   ()=>perEq('semi',1));
+  bracket.final  = buildFase('final', 1, ()=>ganEq('semi',0),   ()=>ganEq('semi',1));
 
   return bracket;
 }
