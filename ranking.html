@@ -470,9 +470,15 @@ function calcPuntos(pron, real, reglas) {
           if(ord[2])t3.push({eq:ord[2],gi,pts:(calcStatsGrupo(gi,res)[ord[2]]||{pts:0}).pts,dg:(calcStatsGrupo(gi,res)[ord[2]]||{gf:0,gc:0}).gf-(calcStatsGrupo(gi,res)[ord[2]]||{gf:0,gc:0}).gc,gf:(calcStatsGrupo(gi,res)[ord[2]]||{gf:0}).gf});
         });
 
-        // Reconstruir D16 con la tabla FIFA
-        const top8t=t3.sort((a,b)=>(b.pts-a.pts)||(b.dg-a.dg)||b.gf-a.gf).slice(0,8);
-        const crucesD16=buildCrucesD16(res,null);
+        // D16: usar nombres guardados en estadoFase si existen, sino reconstruir con FIFA_TABLA
+        const crucesD16raw=buildCrucesD16(res,null);
+        const crucesD16=crucesD16raw.map((cr,i)=>{
+          const est=ef.d16?.[i]||{};
+          return {
+            local: est.local ? {eq:est.local} : cr.local,
+            vis:   est.vis   ? {eq:est.vis}   : cr.vis,
+          };
+        });
 
         // D16: usar estadoFase para saber quién ganó, nombres del bracket
         crucesD16.forEach((cr,i)=>{
