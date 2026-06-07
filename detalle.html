@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle de pronósticos — Porra Mundial 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --bg: #f1f5f9; --card: #fff; --border: #e2e8f0; --border2: #cbd5e1;
+      --text: #0f172a; --text2: #475569; --text3: #94a3b8;
+      --blue: #2563eb; --green: #16a34a; --red: #dc2626; --radius: 12px;
+    }
+    body { font-family: var(--font-sans); background: var(--bg); min-height: 100vh; }
+
+    .topbar { background: #1e293b; color: #f1f5f9; display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.3); gap: 8px; }
+    .topbar-titulo { font-size: 14px; font-weight: 600; }
+    .nav-link { color: #94a3b8; font-size: 12px; text-decoration: none; border: 1px solid #475569; border-radius: 6px; padding: 4px 10px; white-space: nowrap; }
+
+    .controles { background: var(--card); border-bottom: 0.5px solid var(--border); padding: 10px 16px; display: flex; gap: 16px; align-items: center; position: sticky; top: 49px; z-index: 99; }
+    .check-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text2); cursor: pointer; user-select: none; }
+    .check-label input { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; }
+
+    .loading-txt { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
+
+    /* TABLA */
+    .tabla-wrap { overflow-x: auto; padding: 12px; }
+    table { border-collapse: collapse; min-width: 100%; font-size: 12px; }
+
+    /* Cabecera jugadores */
+    .th-jugador { background: #1e293b; color: #f1f5f9; padding: 8px 10px; text-align: center; font-size: 11px; font-weight: 600; white-space: nowrap; min-width: 80px; position: sticky; top: 98px; z-index: 50; }
+    .th-jugador.yo { background: #1e40af; }
+    .th-partido { background: #f8fafc; padding: 8px 10px; text-align: left; font-size: 11px; color: var(--text2); font-weight: 600; white-space: nowrap; position: sticky; left: 0; z-index: 40; min-width: 160px; border-right: 2px solid var(--border2); }
+    .th-partido-header { background: #1e293b; color: #94a3b8; padding: 8px 10px; font-size: 11px; font-weight: 600; position: sticky; left: 0; top: 98px; z-index: 60; border-right: 2px solid #334155; }
+
+    /* Filas */
+    .tr-grupo-header td { background: #1e293b; color: #f1f5f9; font-size: 11px; font-weight: 700; padding: 6px 10px; letter-spacing: 0.05em; }
+    .tr-grupo-header .td-partido { position: sticky; left: 0; z-index: 30; background: #1e293b; border-right: 2px solid #334155; }
+
+    .td-partido { position: sticky; left: 0; z-index: 20; background: var(--card); border-right: 2px solid var(--border2); padding: 6px 10px; white-space: nowrap; }
+    .partido-real { display: flex; align-items: center; gap: 4px; }
+    .eq-nombre { font-size: 11px; color: var(--text2); max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .marcador-real { font-size: 12px; font-weight: 700; color: var(--text); background: #f1f5f9; border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
+    .marcador-real.sin-dato { color: var(--text3); background: none; }
+
+    /* Celdas de pronóstico */
+    .td-pron { padding: 4px 6px; text-align: center; border-left: 0.5px solid var(--border); min-width: 72px; vertical-align: middle; }
+    .pron-marcador { font-size: 13px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 3px; }
+    .pron-pts { font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 5px; margin-top: 2px; display: inline-block; }
+    .pts-4  { background: #14532d; color: #fff; }
+    .pts-3  { background: #15803d; color: #fff; }
+    .pts-1  { background: #ca8a04; color: #fff; }
+    .pts-0  { background: #f1f5f9; color: var(--text3); }
+    /* Eliminatorias */
+    .pts-9  { background: #1e3a5f; color: #fff; }
+    .pts-6  { background: #1d4ed8; color: #fff; }
+    .pts-5  { background: #2563eb; color: #fff; }
+    .pron-vacio { color: var(--text3); font-size: 11px; }
+
+    /* Filas alternas */
+    tr:nth-child(even) .td-partido { background: #f8fafc; }
+    tr:nth-child(even) .td-pron { background: #fafafa; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-titulo">📊 Detalle de pronósticos</div>
+  <a href="ranking.html" class="nav-link">🏆 Ranking</a>
+  <a href="index.html" class="nav-link">🏠 Inicio</a>
+</div>
+
+<div class="controles">
+  <label class="check-label">
+    <input type="checkbox" id="chk-grupos" checked onchange="renderTabla()">
+    ⚽ Fase de grupos
+  </label>
+  <label class="check-label">
+    <input type="checkbox" id="chk-elim" checked onchange="renderTabla()">
+    🏆 Eliminatorias
+  </label>
+</div>
+
+<div id="contenido"><div class="loading-txt">⏳ Cargando pronósticos...</div></div>
+
+<script>
+const SUPABASE_URL = 'https://nbntbdfedjbmvwmrudeo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ibnRiZGZlZGpibXZ3bXJ1ZGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MTIzNzQsImV4cCI6MjA5NjA4ODM3NH0.46Nr-mqvZSSNFd47VCgdWBD-DmD0tK5nXQ8YFEve2CI';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const GRUPOS = [
+  { nombre:"Grupo A", equipos:["México","Sudáfrica","Corea del Sur","Rep. Checa"], partidos:[["México","Sudáfrica"],["Corea del Sur","Rep. Checa"],["Rep. Checa","Sudáfrica"],["México","Corea del Sur"],["Sudáfrica","México"],["Rep. Checa","Corea del Sur"]] },
+  { nombre:"Grupo B", equipos:["Canadá","Bosnia y Herz.","Catar","Suiza"], partidos:[["Canadá","Bosnia y Herz."],["Catar","Suiza"],["Suiza","Bosnia y Herz."],["Canadá","Catar"],["Bosnia y Herz.","Canadá"],["Suiza","Catar"]] },
+  { nombre:"Grupo C", equipos:["Brasil","Marruecos","Haití","Escocia"], partidos:[["Brasil","Marruecos"],["Haití","Escocia"],["Escocia","Marruecos"],["Brasil","Haití"],["Marruecos","Brasil"],["Escocia","Haití"]] },
+  { nombre:"Grupo D", equipos:["Estados Unidos","Paraguay","Australia","Turquía"], partidos:[["Estados Unidos","Paraguay"],["Australia","Turquía"],["Turquía","Paraguay"],["Estados Unidos","Australia"],["Paraguay","Estados Unidos"],["Turquía","Australia"]] },
+  { nombre:"Grupo E", equipos:["Alemania","Curazao","Costa de Marfil","Ecuador"], partidos:[["Alemania","Curazao"],["Costa de Marfil","Ecuador"],["Alemania","Costa de Marfil"],["Ecuador","Curazao"],["Curazao","Alemania"],["Ecuador","Costa de Marfil"]] },
+  { nombre:"Grupo F", equipos:["Países Bajos","Japón","Suecia","Túnez"], partidos:[["Países Bajos","Japón"],["Suecia","Túnez"],["Países Bajos","Suecia"],["Japón","Túnez"],["Japón","Países Bajos"],["Túnez","Suecia"]] },
+  { nombre:"Grupo G", equipos:["Bélgica","Egipto","Irán","Nueva Zelanda"], partidos:[["Bélgica","Egipto"],["Irán","Nueva Zelanda"],["Bélgica","Irán"],["Nueva Zelanda","Egipto"],["Egipto","Bélgica"],["Nueva Zelanda","Irán"]] },
+  { nombre:"Grupo H", equipos:["España","Cabo Verde","Arabia Saudita","Uruguay"], partidos:[["España","Cabo Verde"],["Arabia Saudita","Uruguay"],["España","Arabia Saudita"],["Uruguay","Cabo Verde"],["Cabo Verde","España"],["Uruguay","Arabia Saudita"]] },
+  { nombre:"Grupo I", equipos:["Francia","Senegal","Irak","Noruega"], partidos:[["Francia","Senegal"],["Irak","Noruega"],["Francia","Irak"],["Noruega","Senegal"],["Senegal","Francia"],["Noruega","Irak"]] },
+  { nombre:"Grupo J", equipos:["Argentina","Argelia","Austria","Jordania"], partidos:[["Argentina","Argelia"],["Austria","Jordania"],["Argentina","Austria"],["Jordania","Argelia"],["Argelia","Argentina"],["Jordania","Austria"]] },
+  { nombre:"Grupo K", equipos:["Portugal","R.D. Congo","Uzbekistán","Colombia"], partidos:[["Portugal","R.D. Congo"],["Uzbekistán","Colombia"],["Portugal","Uzbekistán"],["Colombia","R.D. Congo"],["R.D. Congo","Portugal"],["Colombia","Uzbekistán"]] },
+  { nombre:"Grupo L", equipos:["Inglaterra","Croacia","Ghana","Panamá"], partidos:[["Inglaterra","Croacia"],["Ghana","Panamá"],["Inglaterra","Ghana"],["Panamá","Croacia"],["Croacia","Inglaterra"],["Panamá","Ghana"]] },
+];
+
+const FASES_ELIM = [
+  { key:'d16',    nombre:'Dieciseisavos', n:16 },
+  { key:'oct',    nombre:'Octavos',       n:8  },
+  { key:'qtr',    nombre:'Cuartos',       n:4  },
+  { key:'semi',   nombre:'Semifinales',   n:2  },
+  { key:'tercer', nombre:'3er Puesto',    n:1  },
+  { key:'final',  nombre:'Final',         n:1  },
+];
+
+// Banderas
+const FLAGS = {"México":"🇲🇽","Sudáfrica":"🇿🇦","Corea del Sur":"🇰🇷","Rep. Checa":"🇨🇿","Canadá":"🇨🇦","Bosnia y Herz.":"🇧🇦","Catar":"🇶🇦","Suiza":"🇨🇭","Brasil":"🇧🇷","Marruecos":"🇲🇦","Haití":"🇭🇹","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Estados Unidos":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Turquía":"🇹🇷","Alemania":"🇩🇪","Curazao":"🇨🇼","Costa de Marfil":"🇨🇮","Ecuador":"🇪🇨","Países Bajos":"🇳🇱","Japón":"🇯🇵","Suecia":"🇸🇪","Túnez":"🇹🇳","Bélgica":"🇧🇪","Egipto":"🇪🇬","Irán":"🇮🇷","Nueva Zelanda":"🇳🇿","España":"🇪🇸","Cabo Verde":"🇨🇻","Arabia Saudita":"🇸🇦","Uruguay":"🇺🇾","Francia":"🇫🇷","Senegal":"🇸🇳","Irak":"🇮🇶","Noruega":"🇳🇴","Argentina":"🇦🇷","Argelia":"🇩🇿","Austria":"🇦🇹","Jordania":"🇯🇴","Portugal":"🇵🇹","R.D. Congo":"🇨🇩","Uzbekistán":"🇺🇿","Colombia":"🇨🇴","Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croacia":"🇭🇷","Ghana":"🇬🇭","Panamá":"🇵🇦"};
+const F = eq => FLAGS[eq]||'🏳';
+
+function ganadorCruce(est) {
+  if(!est||est.gl===null||est.gv===null) return null;
+  if(est.gl>est.gv) return 'local';
+  if(est.gv>est.gl) return 'visitante';
+  return est.elegido||null;
+}
+
+// Calcular puntos R1 para un partido
+function ptsR1(rp, rr, cfg) {
+  if(!rr||rr.local===null||rr.visitante===null) return null; // sin resultado real
+  if(!rp||rp.local===null||rp.visitante===null) return 0;
+  let pts = 0;
+  const signoP = Math.sign(rp.local - rp.visitante);
+  const signoR = Math.sign(rr.local - rr.visitante);
+  if(signoP === signoR) pts += cfg.ganador||1;
+  if(rp.local === rr.local && rp.visitante === rr.visitante) pts += cfg.exacto||3;
+  return pts;
+}
+
+// Calcular puntos R3 para un cruce eliminatorio
+function ptsR3(ep, er, cfg) {
+  if(!er||er.gl===null||er.gv===null) return null; // sin resultado real
+  if(!ep||ep.gl===null||ep.gv===null) return 0;
+  let pts = 0;
+  // Emparejamiento: los equipos local/vis son los mismos
+  const mismosEq = ep.local && er.local && ep.vis && er.vis &&
+    ((ep.local===er.local&&ep.vis===er.vis)||(ep.local===er.vis&&ep.vis===er.local));
+  if(mismosEq) pts += cfg.emparej||5;
+  // Ganador
+  const ganR = ganadorCruce(er), ganP = ganadorCruce(ep);
+  if(ganR && ganP) {
+    const ganEqR = ganR==='local'?er.local:er.vis;
+    const ganEqP = ganP==='local'?ep.local:ep.vis;
+    if(mismosEq && ganEqR && ganEqP && ganEqR===ganEqP) pts += cfg.ganador||1;
+  }
+  // Marcador exacto
+  if(ep.gl===er.gl && ep.gv===er.gv) pts += cfg.exacto||3;
+  return pts;
+}
+
+function clsPts(pts, max) {
+  if(pts===null) return 'pts-0';
+  if(pts===max) return `pts-${max}`;
+  if(pts>=max-1) return `pts-${max-1}`;
+  if(pts>0) return 'pts-1';
+  return 'pts-0';
+}
+
+let globalData = null;
+
+async function cargar() {
+  try {
+    const [{ data: pronos }, { data: realRow }, { data: sesData }, { data: regRow }] = await Promise.all([
+      sb.from('pronosticos').select('user_id,nombre,datos'),
+      sb.from('resultados_reales').select('datos').eq('id','00000000-0000-0000-0000-000000000001').maybeSingle(),
+      sb.auth.getSession(),
+      sb.from('config_reglas').select('reglas').eq('id',1).maybeSingle(),
+    ]);
+
+    const real = realRow?.datos ? (typeof realRow.datos==='string'?JSON.parse(realRow.datos):realRow.datos) : null;
+    const reglas = regRow?.reglas || { r1:{activa:true,ganador:1,exacto:3}, r3:{activa:true,emparej:5,ganador:1,exacto:3} };
+    const miId = sesData?.session?.user?.id || null;
+
+    // Calcular puntos totales para ordenar
+    const jugadores = (pronos||[]).map(p => {
+      const datos = typeof p.datos==='string'?JSON.parse(p.datos):p.datos;
+      return { user_id: p.user_id, nombre: p.nombre, datos, esYo: p.user_id===miId };
+    }).sort((a,b) => b.nombre.localeCompare(a.nombre)); // ordenar por ranking (simplificado)
+
+    globalData = { jugadores, real, reglas, miId };
+    renderTabla();
+  } catch(e) {
+    document.getElementById('contenido').innerHTML = `<div class="loading-txt">❌ Error: ${e.message}</div>`;
+  }
+}
+
+function renderTabla() {
+  if(!globalData) return;
+  const { jugadores, real, reglas, miId } = globalData;
+  const mostrarGrupos = document.getElementById('chk-grupos').checked;
+  const mostrarElim   = document.getElementById('chk-elim').checked;
+
+  if(!mostrarGrupos && !mostrarElim) {
+    document.getElementById('contenido').innerHTML = '<div class="loading-txt">Selecciona al menos una fase.</div>';
+    return;
+  }
+
+  let html = '<div class="tabla-wrap"><table><thead><tr>';
+  html += `<th class="th-partido-header">Partido / Real</th>`;
+  jugadores.forEach(j => {
+    const cls = j.esYo ? 'th-jugador yo' : 'th-jugador';
+    const ini = j.nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    html += `<th class="${cls}">${ini}<br><span style="font-size:9px;font-weight:400;opacity:0.8">${j.nombre.split(' ')[0]}</span></th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  // ── FASE DE GRUPOS ──
+  if(mostrarGrupos) {
+    GRUPOS.forEach((g, gi) => {
+      // Cabecera de grupo
+      html += `<tr class="tr-grupo-header"><td class="td-partido tr-grupo-header">${g.nombre}</td>`;
+      jugadores.forEach(() => { html += '<td></td>'; });
+      html += '</tr>';
+
+      g.partidos.forEach((par, pi) => {
+        const rr = real?.resultados?.[gi]?.[pi];
+        const sinReal = !rr || rr.local===null || rr.visitante===null;
+        const marcReal = sinReal ? '–' : `${rr.local}-${rr.visitante}`;
+
+        html += `<tr>`;
+        html += `<td class="td-partido">
+          <div class="partido-real">
+            <span>${F(par[0])}</span>
+            <span class="eq-nombre">${par[0]}</span>
+            <span class="marcador-real${sinReal?' sin-dato':''}">${marcReal}</span>
+            <span class="eq-nombre">${par[1]}</span>
+            <span>${F(par[1])}</span>
+          </div>
+        </td>`;
+
+        jugadores.forEach(j => {
+          const rp = j.datos?.resultados?.[gi]?.[pi];
+          const sinPron = !rp || rp.local===null || rp.visitante===null;
+          if(sinPron) { html += `<td class="td-pron"><span class="pron-vacio">–</span></td>`; return; }
+
+          const pts = sinReal ? null : ptsR1(rp, rr, reglas.r1||{ganador:1,exacto:3});
+          const maxPts = (reglas.r1?.ganador||1) + (reglas.r1?.exacto||3);
+          const cls = pts===null?'pts-0':pts===maxPts?`pts-${maxPts}`:pts>0?'pts-1':'pts-0';
+
+          html += `<td class="td-pron">
+            <div class="pron-marcador">${rp.local}<span style="color:var(--text3);font-size:10px">-</span>${rp.visitante}</div>
+            ${pts!==null?`<span class="pron-pts ${cls}">${pts>0?'+':''}${pts}</span>`:''}
+          </td>`;
+        });
+        html += '</tr>';
+      });
+    });
+  }
+
+  // ── ELIMINATORIAS ──
+  if(mostrarElim) {
+    FASES_ELIM.forEach(fase => {
+      // Cabecera de fase
+      html += `<tr class="tr-grupo-header"><td class="td-partido tr-grupo-header">${fase.nombre}</td>`;
+      jugadores.forEach(() => { html += '<td></td>'; });
+      html += '</tr>';
+
+      for(let i=0; i<fase.n; i++) {
+        const er = real?.estadoFase?.[fase.key]?.[i];
+        const sinReal = !er||er.gl===null||er.gv===null;
+        const lEq = er?.local||'?', vEq = er?.vis||'?';
+        const marcReal = sinReal ? '–' : `${er.gl}-${er.gv}`;
+
+        html += `<tr>`;
+        html += `<td class="td-partido">
+          <div class="partido-real">
+            <span>${F(lEq)}</span>
+            <span class="eq-nombre">${lEq}</span>
+            <span class="marcador-real${sinReal?' sin-dato':''}">${marcReal}</span>
+            <span class="eq-nombre">${vEq}</span>
+            <span>${F(vEq)}</span>
+          </div>
+        </td>`;
+
+        jugadores.forEach(j => {
+          const ep = j.datos?.estadoFase?.[fase.key]?.[i];
+          const sinPron = !ep||ep.gl===null||ep.gv===null;
+          if(sinPron) { html += `<td class="td-pron"><span class="pron-vacio">–</span></td>`; return; }
+
+          const lEqP = ep?.local||'?', vEqP = ep?.vis||'?';
+          const pts = sinReal ? null : ptsR3(ep, er, reglas.r3||{emparej:5,ganador:1,exacto:3});
+          const maxPts = (reglas.r3?.emparej||5)+(reglas.r3?.ganador||1)+(reglas.r3?.exacto||3);
+          const cls = pts===null?'pts-0':pts===maxPts?`pts-${maxPts}`:pts>=(reglas.r3?.emparej||5)?'pts-6':pts>0?'pts-5':'pts-0';
+
+          html += `<td class="td-pron">
+            <div style="font-size:10px;color:var(--text3)">${F(lEqP)}${lEqP.split(' ')[0]}-${F(vEqP)}${vEqP.split(' ')[0]}</div>
+            <div class="pron-marcador">${ep.gl}<span style="color:var(--text3);font-size:10px">-</span>${ep.gv}</div>
+            ${pts!==null?`<span class="pron-pts ${cls}">${pts>0?'+':''}${pts}</span>`:''}
+          </td>`;
+        });
+        html += '</tr>';
+      }
+    });
+  }
+
+  html += '</tbody></table></div>';
+  document.getElementById('contenido').innerHTML = html;
+}
+
+cargar();
+</script>
+</body>
+</html>
