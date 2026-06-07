@@ -972,7 +972,9 @@ function navegarBS(dir) {
   if(!bsCtx) return;
   if(bsCtx.tipo === 'elim') {
     const fase = bsCtx.faseKey;
-    const cruces = getCruces(fase);
+    // En pronosticos los cruces se obtienen con buildCruces por fase
+    const buildFns = {d16:buildCrucesD16, oct:buildCrucesOct, qtr:buildCrucesQtr, semi:buildCrucesSemi, tercer:buildCrucesTercer, final:buildCrucesFinal};
+    const cruces = buildFns[fase] ? buildFns[fase]() : [];
     const newIdx = bsCtx.cruceidx + dir;
     if(newIdx < 0 || newIdx >= cruces.length) return;
     const cr = cruces[newIdx];
@@ -1002,7 +1004,8 @@ function actualizarBSNavBtns() {
   const next = document.getElementById('bs-btn-next');
   if(!prev || !next) return;
   if(bsCtx.tipo === 'elim') {
-    const cruces = getCruces(bsCtx.faseKey);
+    const buildFns = {d16:buildCrucesD16, oct:buildCrucesOct, qtr:buildCrucesQtr, semi:buildCrucesSemi, tercer:buildCrucesTercer, final:buildCrucesFinal};
+    const cruces = buildFns[bsCtx.faseKey] ? buildFns[bsCtx.faseKey]() : [];
     prev.disabled = bsCtx.cruceidx <= 0;
     next.disabled = bsCtx.cruceidx >= cruces.length - 1;
   } else {
