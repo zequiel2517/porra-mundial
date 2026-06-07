@@ -979,7 +979,7 @@ function navegarBS(dir) {
     if(newIdx < 0 || newIdx >= cruces.length) return;
     const cr = cruces[newIdx];
     const lEq = cr.local?.eq||'?', vEq = cr.vis?.eq||'?';
-    const est = estadoFase[fase][newIdx] || {gl:null,gv:null,elegido:null};
+    const est = estadoFase[fase][newIdx] || estadoFase[fase][String(newIdx)] || {gl:null,gv:null,elegido:null};
     bsCtx = {faseKey: fase, cruceidx: newIdx, tipo: 'elim', localEq: lEq, visEq: vEq};
     document.getElementById('bs-titulo').textContent = `${lEq} vs ${vEq}`;
     actualizarBSDisplay(est.gl, est.gv);
