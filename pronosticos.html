@@ -716,7 +716,7 @@ function clickElim(faseKey,i,lado){
   // Guardar nombres si los cruces están disponibles
   const buildFns={d16:buildCrucesD16,oct:buildCrucesOct,qtr:buildCrucesQtr,semi:buildCrucesSemi,tercer:buildCrucesTercer,final:buildCrucesFinal};
   if(buildFns[faseKey]){const cr=buildFns[faseKey]()[i];if(cr){estadoFase[faseKey][i].local=cr.local?.eq||'?';estadoFase[faseKey][i].vis=cr.vis?.eq||'?';}}
-  renderFase(faseKey); marcarPendiente();
+  renderFase(faseKey==='tercer'?'semi':faseKey); marcarPendiente();
 }
 
 function toggleTerceroManual(gi, necesitamos, gisFrontera) {
@@ -944,7 +944,7 @@ function elegirMarcador(gl, gv) {
     if(bsCtx.visEq)   estadoFase[fase][ii].vis   = bsCtx.visEq;
     actualizarBSDisplay(gl, gv);
     renderBSGrid(gl, gv);
-    renderFase(fase);
+    renderFase(fase==='tercer'?'semi':fase);
     marcarPendiente();
   } else {
     const {gi, pi} = bsCtx;

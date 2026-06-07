@@ -26,17 +26,21 @@
     .loading-txt { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
 
     /* TABLA */
-    .tabla-wrap { overflow-x: auto; padding: 12px; }
+    .tabla-wrap { overflow: auto; padding: 0; max-height: calc(100vh - 89px); }
     table { border-collapse: collapse; min-width: 100%; font-size: 12px; }
 
     /* Cabecera jugadores */
-    .th-jugador { background: #1e293b; color: #f1f5f9; padding: 6px 6px; text-align: center; font-size: 10px; font-weight: 600; white-space: nowrap; min-width: 56px; position: sticky; top: 88px; z-index: 50; border-left: 0.5px solid #334155; }
+    .th-jugador { background: #1e293b; color: #f1f5f9; padding: 6px 6px; text-align: center; font-size: 10px; font-weight: 600; white-space: nowrap; min-width: 56px; position: sticky; top: 0; z-index: 50; border-left: 0.5px solid #334155; }
     .th-jugador.yo { background: #1e40af; }
-    .th-partido-header { background: #1e293b; color: #94a3b8; padding: 8px 10px; font-size: 11px; font-weight: 600; position: sticky; left: 0; top: 88px; z-index: 60; border-right: 2px solid #334155; min-width: 110px; }
+    .th-partido-header { background: #1e293b; color: #94a3b8; padding: 8px 10px; font-size: 11px; font-weight: 600; position: sticky; left: 0; top: 0; z-index: 60; border-right: 2px solid #334155; min-width: 110px; }
 
     /* Filas */
     .tr-grupo-header td { background: #1e293b; color: #f1f5f9; font-size: 11px; font-weight: 700; padding: 6px 10px; letter-spacing: 0.05em; }
     .tr-grupo-header .td-partido { position: sticky; left: 0; z-index: 30; background: #1e293b; border-right: 2px solid #334155; }
+    .tr-r4-campeon td, .tr-r4-campeon .td-partido { background: #7A6000 !important; }
+    .tr-r4-sub td, .tr-r4-sub .td-partido { background: #475569 !important; }
+    .tr-r4-tercero td, .tr-r4-tercero .td-partido { background: #3B6D11 !important; }
+    .tr-r4-cuarto td, .tr-r4-cuarto .td-partido { background: #5f3a1e !important; }
 
     .td-partido { position: sticky; left: 0; z-index: 20; background: var(--card); border-right: 2px solid var(--border2); padding: 5px 8px; white-space: nowrap; min-width: 110px; }
     .partido-real { display: flex; align-items: center; gap: 4px; }
@@ -45,7 +49,9 @@
     .marcador-real.sin-dato { color: var(--text3); background: none; }
 
     /* Celdas de pronóstico */
-    .td-pron { padding: 4px 4px; text-align: center; border-left: 0.5px solid var(--border); min-width: 52px; vertical-align: middle; }
+    .td-pron { padding: 3px 4px; text-align: center; border-left: 0.5px solid var(--border); min-width: 70px; vertical-align: middle; }
+    .pron-linea { display: flex; align-items: center; justify-content: center; gap: 2px; font-size: 12px; font-weight: 600; white-space: nowrap; flex-wrap: nowrap; }
+    .sep { color: var(--text3); font-size: 10px; margin: 0 1px; }
     .pron-marcador { font-size: 13px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 3px; }
     .pron-pts { font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 5px; margin-top: 2px; display: inline-block; }
     .pts-4  { background: #14532d; color: #fff; }
@@ -61,6 +67,13 @@
     /* Filas alternas */
     tr:nth-child(even) .td-partido { background: #f8fafc; }
     tr:nth-child(even) .td-pron { background: #fafafa; }
+    /* Cabeceras siempre oscuras independiente de par/impar */
+    tr.tr-grupo-header:nth-child(even) td { background: #1e293b !important; }
+    tr.tr-grupo-header:nth-child(even) .td-partido { background: #1e293b !important; }
+    tr.tr-r4-campeon:nth-child(even) td, tr.tr-r4-campeon:nth-child(even) .td-partido { background: #7A6000 !important; }
+    tr.tr-r4-sub:nth-child(even) td, tr.tr-r4-sub:nth-child(even) .td-partido { background: #475569 !important; }
+    tr.tr-r4-tercero:nth-child(even) td, tr.tr-r4-tercero:nth-child(even) .td-partido { background: #3B6D11 !important; }
+    tr.tr-r4-cuarto:nth-child(even) td, tr.tr-r4-cuarto:nth-child(even) .td-partido { background: #5f3a1e !important; }
   </style>
 </head>
 <body>
@@ -79,6 +92,10 @@
   <label class="check-label">
     <input type="checkbox" id="chk-elim" checked onchange="renderTabla()">
     🏆 Eliminatorias
+  </label>
+  <label class="check-label">
+    <input type="checkbox" id="chk-r4" checked onchange="renderTabla()">
+    🌍 Puestos Finales
   </label>
 </div>
 
@@ -181,10 +198,42 @@ async function cargar() {
     const miId = sesData?.session?.user?.id || null;
 
     // Calcular puntos totales para ordenar
+    // Calcular puntos totales para cada jugador (R1+R2 simplificado para ordenar)
+    const calcTotalSimple = (datos, real, reglas) => {
+      if(!real||!datos) return 0;
+      let r1=0,r2=0;
+      const cfg1 = reglas.r1||{ganador:1,exacto:3};
+      const cfg2 = reglas.r2||{posicion:3};
+      GRUPOS.forEach((g,gi)=>{
+        g.partidos.forEach((_,pi)=>{
+          const rp=datos.resultados?.[gi]?.[pi], rr=real.resultados?.[gi]?.[pi];
+          if(!rp||!rr||rp.local===null||rr.local===null||rp.visitante===null||rr.visitante===null)return;
+          if(Math.sign(rp.local-rp.visitante)===Math.sign(rr.local-rr.visitante))r1+=cfg1.ganador||1;
+          if(rp.local===rr.local&&rp.visitante===rr.visitante)r1+=cfg1.exacto||3;
+        });
+        const resReal=real.resultados?.[gi]||[];
+        if(resReal.every(r=>r.local!==null&&r.visitante!==null)){
+          const statsP={},statsR={};
+          g.equipos.forEach(e=>{statsP[e]={pts:0,gf:0,gc:0};statsR[e]={pts:0,gf:0,gc:0};});
+          const calcS=(res,stats)=>g.partidos.forEach(([loc,vis],pi)=>{
+            const r=res[pi];if(!r||r.local===null)return;
+            stats[loc].gf+=r.local;stats[loc].gc+=r.visitante;stats[vis].gf+=r.visitante;stats[vis].gc+=r.local;
+            if(r.local>r.visitante)stats[loc].pts+=3;else if(r.local<r.visitante)stats[vis].pts+=3;else{stats[loc].pts++;stats[vis].pts++;}
+          });
+          calcS(datos.resultados?.[gi]||[],statsP);calcS(resReal,statsR);
+          const ordP=[...g.equipos].sort((a,b)=>(statsP[b].pts-statsP[a].pts)||statsP[b].gf-statsP[a].gf);
+          const ordR=[...g.equipos].sort((a,b)=>(statsR[b].pts-statsR[a].pts)||statsR[b].gf-statsR[a].gf);
+          ordP.forEach((eq,pos)=>{if(ordR[pos]===eq)r2+=cfg2.posicion||3;});
+        }
+      });
+      return r1+r2;
+    };
+
     const jugadores = (pronos||[]).map(p => {
       const datos = typeof p.datos==='string'?JSON.parse(p.datos):p.datos;
-      return { user_id: p.user_id, nombre: p.nombre, datos, esYo: p.user_id===miId };
-    }).sort((a,b) => b.nombre.localeCompare(a.nombre)); // ordenar por ranking (simplificado)
+      const total = calcTotalSimple(datos, real, reglas);
+      return { user_id: p.user_id, nombre: p.nombre, datos, esYo: p.user_id===miId, total };
+    }).sort((a,b) => b.total - a.total); // ordenar por ranking (simplificado)
 
     globalData = { jugadores, real, reglas, miId };
     renderTabla();
@@ -199,17 +248,17 @@ function renderTabla() {
   const mostrarGrupos = document.getElementById('chk-grupos').checked;
   const mostrarElim   = document.getElementById('chk-elim').checked;
 
-  if(!mostrarGrupos && !mostrarElim) {
-    document.getElementById('contenido').innerHTML = '<div class="loading-txt">Selecciona al menos una fase.</div>';
+  const mostrarR4 = document.getElementById('chk-r4')?.checked;
+  if(!mostrarGrupos && !mostrarElim && !mostrarR4) {
+    document.getElementById('contenido').innerHTML = '<div class="loading-txt">Selecciona al menos una sección.</div>';
     return;
   }
 
   let html = '<div class="tabla-wrap"><table><thead><tr>';
-  html += `<th class="th-partido-header">Partido / Real</th>`;
+  html += `<th class="th-partido-header">Realidad > Ganador</th>`;
   jugadores.forEach(j => {
     const cls = j.esYo ? 'th-jugador yo' : 'th-jugador';
-    const ini = j.nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    html += `<th class="${cls}">${ini}<br><span style="font-size:9px;font-weight:400;opacity:0.8">${j.nombre.split(' ')[0]}</span></th>`;
+    html += `<th class="${cls}">${j.nombre.toUpperCase().split(' ')[0]}<br><span style="font-size:10px;font-weight:700;color:#fbbf24">${j.total} pts</span></th>`;
   });
   html += '</tr></thead><tbody>';
 
@@ -227,11 +276,14 @@ function renderTabla() {
         const marcReal = sinReal ? '–' : `${rr.local}-${rr.visitante}`;
 
         html += `<tr>`;
+        const ganReal = sinReal ? 0 : Math.sign(rr.local - rr.visitante);
+        const fGan = ganReal === 1 ? F(par[0]) : ganReal === -1 ? F(par[1]) : (sinReal ? null : '🤝');
         html += `<td class="td-partido">
           <div class="partido-real">
             <span>${F(par[0])}</span>
             <span class="marcador-real${sinReal?' sin-dato':''}">${marcReal}</span>
             <span>${F(par[1])}</span>
+            ${fGan ? `<span style="opacity:0.5;font-size:9px">▶</span><span>${fGan}</span>` : ''}
           </div>
         </td>`;
 
@@ -245,8 +297,7 @@ function renderTabla() {
           const cls = pts===null?'pts-0':pts===maxPts?`pts-${maxPts}`:pts>0?'pts-1':'pts-0';
 
           html += `<td class="td-pron">
-            <div class="pron-marcador">${rp.local}<span style="color:var(--text3);font-size:10px">-</span>${rp.visitante}</div>
-            ${pts!==null?`<span class="pron-pts ${cls}">${pts>0?'+':''}${pts}</span>`:''}
+            <div class="pron-linea">${F(par[0])} ${rp.local}<span class="sep">-</span>${rp.visitante} ${F(par[1])} ${pts!==null?`<span class="pron-pts ${cls}">${pts>0?'+':''}${pts}</span>`:''}</div>
           </td>`;
         });
         html += '</tr>';
@@ -269,11 +320,14 @@ function renderTabla() {
         const marcReal = sinReal ? '–' : `${er.gl}-${er.gv}`;
 
         html += `<tr>`;
+        const ganElim = sinReal ? null : ganadorCruce(er);
+        const fGanElim = ganElim === 'local' ? F(lEq) : ganElim === 'visitante' ? F(vEq) : (sinReal?null:'❓');
         html += `<td class="td-partido">
           <div class="partido-real">
             <span>${F(lEq)}</span>
             <span class="marcador-real${sinReal?' sin-dato':''}">${marcReal}</span>
             <span>${F(vEq)}</span>
+            ${fGanElim ? `<span style="opacity:0.5;font-size:9px">▶</span><span>${fGanElim}</span>` : ''}
           </div>
         </td>`;
 
@@ -287,9 +341,10 @@ function renderTabla() {
           const maxPts = (reglas.r3?.emparej||5)+(reglas.r3?.ganador||1)+(reglas.r3?.exacto||3);
           const cls = pts===null?'pts-0':pts===maxPts?`pts-${maxPts}`:pts>=(reglas.r3?.emparej||5)?'pts-6':pts>0?'pts-5':'pts-0';
 
+          const flP = ep.local ? F(ep.local) : F(lEq);
+          const fvP = ep.vis   ? F(ep.vis)   : F(vEq);
           html += `<td class="td-pron">
-            <div class="pron-marcador">${ep.gl}<span style="color:var(--text3);font-size:10px">-</span>${ep.gv}</div>
-            ${pts!==null?`<span class="pron-pts ${cls}">${pts>0?'+':''}${pts}</span>`:''}
+            <div class="pron-linea">${flP} ${ep.gl}<span class="sep">-</span>${ep.gv} ${fvP} ${pts!==null?`<span class="pron-pts ${cls}">${pts>0?'+':''}${pts}</span>`:''}</div>
           </td>`;
         });
         html += '</tr>';
@@ -297,8 +352,132 @@ function renderTabla() {
     });
   }
 
+  // ── PUESTOS FINALES (R4) ──
+  if(mostrarR4) {
+    // Calcular posición real de cada equipo
+    const calcPosReal = () => {
+      const pos = {};
+      GRUPOS.forEach(g => g.equipos.forEach(eq => { pos[eq] = 'G'; }));
+      if(!real) return pos;
+      // Clasificados de grupos → D16
+      GRUPOS.forEach((g,gi) => {
+        const res = real.resultados?.[gi] || [];
+        const stats = {};
+        g.equipos.forEach(e => { stats[e]={pts:0,gf:0,gc:0}; });
+        res.forEach((r,pi) => {
+          if(r.local===null||r.visitante===null) return;
+          const [loc,vis]=g.partidos[pi];
+          stats[loc].gf+=r.local;stats[loc].gc+=r.visitante;
+          stats[vis].gf+=r.visitante;stats[vis].gc+=r.local;
+          if(r.local>r.visitante)stats[loc].pts+=3;
+          else if(r.local<r.visitante)stats[vis].pts+=3;
+          else{stats[loc].pts++;stats[vis].pts++;}
+        });
+        const ord=[...g.equipos].sort((a,b)=>(stats[b].pts-stats[a].pts)||(stats[b].gf-stats[b].gc-(stats[a].gf-stats[a].gc))||stats[b].gf-stats[a].gf);
+        if(ord[0])pos[ord[0]]='D';
+        if(ord[1])pos[ord[1]]='D';
+      });
+      // Fases eliminatorias
+      const ef = real.estadoFase || {};
+      const gan=(fase,i)=>{ const e=ef[fase]?.[i]||ef[fase]?.[String(i)]; if(!e||e.gl===null)return null; if(e.gl>e.gv)return e.local; if(e.gv>e.gl)return e.vis; return e.elegido==='local'?e.local:e.elegido==='visitante'?e.vis:null; };
+      const per=(fase,i)=>{ const e=ef[fase]?.[i]||ef[fase]?.[String(i)]; if(!e||e.gl===null)return null; if(e.gl>e.gv)return e.vis; if(e.gv>e.gl)return e.local; return e.elegido==='local'?e.vis:e.elegido==='visitante'?e.local:null; };
+      // D16
+      for(let i=0;i<16;i++){const g=gan('d16',i);if(g)pos[g]='O';}
+      // Oct
+      for(let i=0;i<8;i++){const g=gan('oct',i),p=per('oct',i);if(g)pos[g]='C';if(p)pos[p]='O';}
+      // Qtr
+      for(let i=0;i<4;i++){const p=per('qtr',i);if(p)pos[p]='C';}
+      // Semi
+      for(let i=0;i<2;i++){const g=gan('semi',i),p=per('semi',i);if(g)pos[g]='2';if(p)pos[p]='4';}
+      // Tercer
+      const g3=gan('tercer',0),p3=per('tercer',0);if(g3)pos[g3]='3';if(p3)pos[p3]='4';
+      // Final
+      const gf=gan('final',0),pf=per('final',0);if(gf)pos[gf]='1';if(pf)pos[pf]='2';
+      return pos;
+    };
+
+    const calcPosJugador = (j) => {
+      const pos = {};
+      GRUPOS.forEach(g => g.equipos.forEach(eq => { pos[eq] = 'G'; }));
+      const res = j.datos?.resultados || [];
+      const ef = j.datos?.estadoFase || {};
+      GRUPOS.forEach((g,gi) => {
+        const stats = {};
+        g.equipos.forEach(e=>{stats[e]={pts:0,gf:0,gc:0};});
+        (res[gi]||[]).forEach((r,pi)=>{
+          if(r.local===null||r.visitante===null)return;
+          const [loc,vis]=g.partidos[pi];
+          stats[loc].gf+=r.local;stats[loc].gc+=r.visitante;
+          stats[vis].gf+=r.visitante;stats[vis].gc+=r.local;
+          if(r.local>r.visitante)stats[loc].pts+=3;else if(r.local<r.visitante)stats[vis].pts+=3;else{stats[loc].pts++;stats[vis].pts++;}
+        });
+        const ord=[...g.equipos].sort((a,b)=>(stats[b].pts-stats[a].pts)||(stats[b].gf-stats[b].gc-(stats[a].gf-stats[a].gc))||stats[b].gf-stats[a].gf);
+        if(ord[0])pos[ord[0]]='D';if(ord[1])pos[ord[1]]='D';
+      });
+      const gan=(fase,i)=>{ const e=ef[fase]?.[i]||ef[fase]?.[String(i)]; if(!e||e.gl===null)return null; const lEq=e.local||'?',vEq=e.vis||'?'; if(e.gl>e.gv)return lEq;if(e.gv>e.gl)return vEq;return e.elegido==='local'?lEq:e.elegido==='visitante'?vEq:null; };
+      const per=(fase,i)=>{ const e=ef[fase]?.[i]||ef[fase]?.[String(i)]; if(!e||e.gl===null)return null; const lEq=e.local||'?',vEq=e.vis||'?'; if(e.gl>e.gv)return vEq;if(e.gv>e.gl)return lEq;return e.elegido==='local'?vEq:e.elegido==='visitante'?lEq:null; };
+      for(let i=0;i<16;i++){const g=gan('d16',i);if(g&&g!=='?')pos[g]='O';}
+      for(let i=0;i<8;i++){const g=gan('oct',i),p=per('oct',i);if(g&&g!=='?')pos[g]='C';if(p&&p!=='?')pos[p]='O';}
+      for(let i=0;i<4;i++){const p=per('qtr',i);if(p&&p!=='?')pos[p]='C';}
+      for(let i=0;i<2;i++){const g=gan('semi',i),p=per('semi',i);if(g&&g!=='?')pos[g]='2';if(p&&p!=='?')pos[p]='4';}
+      const g3=gan('tercer',0),p3=per('tercer',0);if(g3&&g3!=='?')pos[g3]='3';if(p3&&p3!=='?')pos[p3]='4';
+      const gf=gan('final',0),pf=per('final',0);if(gf&&gf!=='?')pos[gf]='1';if(pf&&pf!=='?')pos[pf]='2';
+      return pos;
+    };
+
+    const POS_IDX = {'1':0,'2':1,'3':2,'4':3,'C':4,'O':5,'D':6,'G':7};
+    const POS_LABEL = {'1':'Campeón','2':'Subcampeón','3':'3er Puesto','4':'4º Puesto','C':'Cuartos de Final','O':'Octavos','D':'Dieciseisavos','G':'Fase de Grupos'};
+    const tabla_r4 = [[36,28,18,10,6,0,0,0],[28,32,16,10,6,0,0,0],[12,24,28,20,14,6,0,0],[0,10,20,24,12,6,0,0],[0,0,8,16,20,10,4,0],[0,0,0,6,12,16,8,2],[0,0,0,0,4,8,12,6],[0,0,0,0,0,2,4,8]];
+
+    const posReal = calcPosReal();
+    const posJugadores = jugadores.map(j => calcPosJugador(j));
+
+    // Ordenar equipos por posición real
+    // Primero calcular posReal completo, luego ordenar
+    const equiposOrdenados = Object.entries(posReal)
+      .sort((a,b) => {
+        const ia = POS_IDX[a[1]] ?? 7;
+        const ib = POS_IDX[b[1]] ?? 7;
+        if(ia !== ib) return ia - ib;
+        return a[0].localeCompare(b[0]); // alfabético dentro de la misma posición
+      })
+      .map(([eq,pos]) => ({eq,pos}));
+
+    // Cabecera de sección
+    html += `<tr class="tr-grupo-header"><td class="td-partido tr-grupo-header">🌍 Puestos Finales</td>`;
+    jugadores.forEach(() => { html += '<td></td>'; });
+    html += '</tr>';
+
+    // Agrupar por posición
+    let ultimaPos = null;
+    equiposOrdenados.forEach(({eq, pos}) => {
+      if(pos !== ultimaPos) {
+        ultimaPos = pos;
+        const secCls = pos==='1'?'tr-r4-campeon':pos==='2'?'tr-r4-sub':pos==='3'?'tr-r4-tercero':pos==='4'?'tr-r4-cuarto':'';
+        html += `<tr class="tr-grupo-header ${secCls}"><td class="td-partido tr-grupo-header">${POS_LABEL[pos]||pos}</td>`;
+        jugadores.forEach(() => { html += `<td></td>`; });
+        html += '</tr>';
+      }
+
+      html += '<tr>';
+      html += `<td class="td-partido"><div class="partido-real"><span>${F(eq)}</span> <span style="font-size:11px;color:var(--text)">${eq}</span></div></td>`;
+
+      posJugadores.forEach((posJ, ji) => {
+        const posP = posJ[eq] || 'G';
+        const ri = POS_IDX[pos] ?? 7;
+        const pi = POS_IDX[posP] ?? 7;
+        const pts = tabla_r4[pi]?.[ri] ?? 0;
+        const maxPts = tabla_r4[ri]?.[ri] ?? 0;
+        const cls = pts === maxPts ? 'pts-4' : pts > 0 ? 'pts-1' : 'pts-0';
+        html += `<td class="td-pron"><div class="pron-linea" style="font-size:10px">${POS_LABEL[posP]||posP} <span class="pron-pts ${cls}">${pts>0?'+':''}${pts}</span></div></td>`;
+      });
+      html += '</tr>';
+    });
+  }
+
   html += '</tbody></table></div>';
   document.getElementById('contenido').innerHTML = html;
+
 }
 
 cargar();
