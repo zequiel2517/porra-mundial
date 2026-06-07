@@ -682,7 +682,10 @@ async function cargarRanking() {
     // Resultados reales
     const { data: dr } = await sb.from('resultados_reales')
       .select('datos').eq('id','00000000-0000-0000-0000-000000000001').maybeSingle();
-    const realData = dr?.datos || { resultados: GRUPOS.map(g=>g.partidos.map(()=>({local:null,visitante:null}))), estadoFase:{} };
+    const realDataRaw = dr?.datos || null;
+    const realData = realDataRaw
+      ? (typeof realDataRaw === 'string' ? JSON.parse(realDataRaw) : realDataRaw)
+      : { resultados: GRUPOS.map(g=>g.partidos.map(()=>({local:null,visitante:null}))), estadoFase:{} };
 
     // Config reglas
     const { data: dc } = await sb.from('config_reglas').select('reglas').eq('id',1).maybeSingle();
