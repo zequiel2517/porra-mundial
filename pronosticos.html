@@ -367,11 +367,80 @@ async function guardarPronostico() {
     est.textContent = '❌ Error al guardar. Inténtalo de nuevo.';
     est.className = 'guardar-estado error';
   } else {
+    // Calcular y guardar posiciones pronosticadas en pronostico_posiciones
+    try {
+      const posP = calcularPosicionesPronostico();
+      const rows = Object.entries(posP).map(([equipo, posicion]) => ({
+        user_id: currentUser.id, equipo, posicion
+      }));
+      // Borrar posiciones anteriores e insertar nuevas
+      await sb.from('pronostico_posiciones').delete().eq('user_id', currentUser.id);
+      if(rows.length > 0) await sb.from('pronostico_posiciones').insert(rows);
+    } catch(e) { console.warn('Error guardando posiciones:', e); }
+
     const ahora = new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
     est.textContent = `✅ Guardado a las ${ahora}`;
     est.className = 'guardar-estado guardado';
     hayPendiente = false;
   }
+}
+
+function calcularPosicionesPronostico() {
+  const pos = {};
+  // Todos empiezan en Grupos
+  GRUPOS.forEach(g => g.equipos.forEach(eq => { pos[eq] = 'G'; }));
+
+  // Clasificados de grupos → D16
+  GRUPOS.forEach((g, gi) => {
+    const stats = {};
+    g.equipos.forEach(e => { stats[e] = {pts:0,gf:0,gc:0}; });
+    (resultados[gi]||[]).forEach((r,pi) => {
+      if(r.local===null||r.visitante===null) return;
+      const [loc,vis] = g.partidos[pi];
+      stats[loc].gf+=r.local; stats[loc].gc+=r.visitante;
+      stats[vis].gf+=r.visitante; stats[vis].gc+=r.local;
+      if(r.local>r.visitante) stats[loc].pts+=3;
+      else if(r.local<r.visitante) stats[vis].pts+=3;
+      else { stats[loc].pts++; stats[vis].pts++; }
+    });
+    const ord = [...g.equipos].sort((a,b) =>
+      (stats[b].pts-stats[a].pts)||(stats[b].gf-stats[b].gc-(stats[a].gf-stats[a].gc))||stats[b].gf-stats[a].gf
+    );
+    if(ord[0]) pos[ord[0]] = 'D16';
+    if(ord[1]) pos[ord[1]] = 'D16';
+  });
+
+  // Helper: ganador de un cruce por nombre de equipo
+  const ganEq = (fase, i) => {
+    const e = estadoFase[fase]?.[i] || estadoFase[fase]?.[String(i)];
+    if(!e||e.gl===null||e.gv===null) return null;
+    const lEq=e.local||'?', vEq=e.vis||'?';
+    if(e.gl>e.gv) return lEq; if(e.gv>e.gl) return vEq;
+    return e.elegido==='local'?lEq:e.elegido==='visitante'?vEq:null;
+  };
+  const perEq = (fase, i) => {
+    const e = estadoFase[fase]?.[i] || estadoFase[fase]?.[String(i)];
+    if(!e||e.gl===null||e.gv===null) return null;
+    const lEq=e.local||'?', vEq=e.vis||'?';
+    if(e.gl>e.gv) return vEq; if(e.gv>e.gl) return lEq;
+    return e.elegido==='local'?vEq:e.elegido==='visitante'?lEq:null;
+  };
+  const set = (eq, p) => { if(eq&&eq!=='?') pos[eq]=p; };
+
+  // D16
+  for(let i=0;i<16;i++) { set(ganEq('d16',i),'OCT'); set(perEq('d16',i),'D16'); }
+  // OCT
+  for(let i=0;i<8;i++)  { set(ganEq('oct',i),'QTR'); set(perEq('oct',i),'OCT'); }
+  // QTR
+  for(let i=0;i<4;i++)  { set(ganEq('qtr',i),'SEMI'); set(perEq('qtr',i),'QTR'); }
+  // SEMI
+  for(let i=0;i<2;i++)  { set(ganEq('semi',i),'FINAL'); set(perEq('semi',i),'4'); }
+  // TERCER
+  set(ganEq('tercer',0),'3'); set(perEq('tercer',0),'4');
+  // FINAL
+  set(ganEq('final',0),'1'); set(perEq('final',0),'2');
+
+  return pos;
 }
 
 async function cargarPronostico() {
@@ -716,7 +785,7 @@ function clickElim(faseKey,i,lado){
   // Guardar nombres si los cruces están disponibles
   const buildFns={d16:buildCrucesD16,oct:buildCrucesOct,qtr:buildCrucesQtr,semi:buildCrucesSemi,tercer:buildCrucesTercer,final:buildCrucesFinal};
   if(buildFns[faseKey]){const cr=buildFns[faseKey]()[i];if(cr){estadoFase[faseKey][i].local=cr.local?.eq||'?';estadoFase[faseKey][i].vis=cr.vis?.eq||'?';}}
-  renderFase(faseKey); marcarPendiente();
+  renderFase(faseKey==='tercer'?'semi':faseKey); marcarPendiente();
 }
 
 function toggleTerceroManual(gi, necesitamos, gisFrontera) {
@@ -944,7 +1013,7 @@ function elegirMarcador(gl, gv) {
     if(bsCtx.visEq)   estadoFase[fase][ii].vis   = bsCtx.visEq;
     actualizarBSDisplay(gl, gv);
     renderBSGrid(gl, gv);
-    renderFase(fase);
+    renderFase(fase==='tercer'?'semi':fase);
     marcarPendiente();
   } else {
     const {gi, pi} = bsCtx;
