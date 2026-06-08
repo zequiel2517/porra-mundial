@@ -577,14 +577,14 @@ function buildCrucesD16(){
   const vars=PARTIDOS_VAR.map(pv=>({pnum:pv.pnum,local:p[pv.pgr],vis:asig[pv.pnum]||null}));
   return [...f2,...f12,...vars].sort((a,b)=>+a.pnum.slice(1)-+b.pnum.slice(1));
 }
-function ganadoresD16(){const c=buildCrucesD16();return c.map((cr,i)=>{const est=estadoFase.d16[i],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:(cr.vis||{eq:'?',gi:-1});});}
+function ganadoresD16(){const c=buildCrucesD16();return c.map((cr,i)=>{const est=estadoFase.d16[i]||estadoFase.d16[String(i)],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:(cr.vis||{eq:'?',gi:-1});});}
 function buildCrucesOct(){const g=ganadoresD16();return Array.from({length:8},(_,i)=>({pnum:`P${89+i}`,local:g[i*2],vis:g[i*2+1]}));}
-function ganadoresOct(){const c=buildCrucesOct();return c.map((cr,i)=>{const est=estadoFase.oct[i],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
+function ganadoresOct(){const c=buildCrucesOct();return c.map((cr,i)=>{const est=estadoFase.oct[i]||estadoFase.oct[String(i)],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
 function buildCrucesQtr(){const g=ganadoresOct();return Array.from({length:4},(_,i)=>({pnum:`P${97+i}`,local:g[i*2],vis:g[i*2+1]}));}
-function ganadoresQtr(){const c=buildCrucesQtr();return c.map((cr,i)=>{const est=estadoFase.qtr[i],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
+function ganadoresQtr(){const c=buildCrucesQtr();return c.map((cr,i)=>{const est=estadoFase.qtr[i]||estadoFase.qtr[String(i)],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
 function buildCrucesSemi(){const g=ganadoresQtr();return Array.from({length:2},(_,i)=>({pnum:`P${101+i}`,local:g[i*2],vis:g[i*2+1]}));}
-function ganadoresSemi(){const c=buildCrucesSemi();return c.map((cr,i)=>{const est=estadoFase.semi[i],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
-function perdedoresSemi(){const c=buildCrucesSemi();return c.map((cr,i)=>{const est=estadoFase.semi[i],lado=perdedorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
+function ganadoresSemi(){const c=buildCrucesSemi();return c.map((cr,i)=>{const est=estadoFase.semi[i]||estadoFase.semi[String(i)],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
+function perdedoresSemi(){const c=buildCrucesSemi();return c.map((cr,i)=>{const est=estadoFase.semi[i]||estadoFase.semi[String(i)],lado=perdedorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
 function buildCrucesTercer(){const p=perdedoresSemi();return [{pnum:'P3/4',local:p[0],vis:p[1]}];}
 function buildCrucesFinal(){const g=ganadoresSemi();return [{pnum:'FINAL',local:g[0],vis:g[1]}];}
 
@@ -716,7 +716,7 @@ function clickElim(faseKey,i,lado){
   // Guardar nombres si los cruces están disponibles
   const buildFns={d16:buildCrucesD16,oct:buildCrucesOct,qtr:buildCrucesQtr,semi:buildCrucesSemi,tercer:buildCrucesTercer,final:buildCrucesFinal};
   if(buildFns[faseKey]){const cr=buildFns[faseKey]()[i];if(cr){estadoFase[faseKey][i].local=cr.local?.eq||'?';estadoFase[faseKey][i].vis=cr.vis?.eq||'?';}}
-  renderFase(faseKey==='tercer'?'semi':faseKey); marcarPendiente();
+  renderFase(faseKey); marcarPendiente();
 }
 
 function toggleTerceroManual(gi, necesitamos, gisFrontera) {
@@ -823,7 +823,7 @@ function renderPalmares(){
   const tercero=lgt?{...(lgt==='local'?tercCr.local:tercCr.vis)}:null;
   const cuarto=lpt?{...(lpt==='local'?tercCr.local:tercCr.vis)}:null;
   const cOct=buildCrucesOct();
-  const cuartos=cOct.map((cr,i)=>{const est=estadoFase.oct[i],lado=perdedorCruce(est);if(!lado)return null;return lado==='local'?cr.local:cr.vis;}).filter(Boolean);
+  const cuartos=cOct.map((cr,i)=>{const est=estadoFase.oct[i]||estadoFase.oct[String(i)],lado=perdedorCruce(est);if(!lado)return null;return lado==='local'?cr.local:cr.vis;}).filter(Boolean);
   const cD16=buildCrucesD16();
   const octavos=cD16.map((cr,i)=>{const est=estadoFase.d16[i],lado=perdedorCruce(est);if(!lado)return null;return lado==='local'?cr.local:(cr.vis||null);}).filter(Boolean);
   const t3all=get8Terceros();
@@ -944,7 +944,7 @@ function elegirMarcador(gl, gv) {
     if(bsCtx.visEq)   estadoFase[fase][ii].vis   = bsCtx.visEq;
     actualizarBSDisplay(gl, gv);
     renderBSGrid(gl, gv);
-    renderFase(fase==='tercer'?'semi':fase);
+    renderFase(fase);
     marcarPendiente();
   } else {
     const {gi, pi} = bsCtx;
