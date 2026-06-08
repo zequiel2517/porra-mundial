@@ -363,28 +363,36 @@ function calcPuntos(pron, real, reglas, crucesReal, posReal) {
 
   // REGLA 3: eliminatorias — usando tabla cruces de BD
   if(config.r3?.activa && crucesReal.length > 0) {
+    // Agrupar cruces reales por fase
+    const crucesPorFase = {};
+    crucesReal.forEach(cr => {
+      if(!crucesPorFase[cr.fase]) crucesPorFase[cr.fase] = [];
+      crucesPorFase[cr.fase].push(cr);
+    });
+
+    // Para cada cruce real con resultado, buscar el emparejamiento en el pronóstico
     crucesReal.forEach(cr => {
       if(cr.gl===null||cr.gv===null) return; // sin resultado real
-      console.log(`R3 cruce real: ${cr.fase}[${cr.indice}] ${cr.local} vs ${cr.vis} ${cr.gl}-${cr.gv}`);
-      // Buscar el pronóstico del jugador para esta misma fase e índice
       const ef = pron.estadoFase || {};
-      const ep = ef[cr.fase]?.[cr.indice] || ef[cr.fase]?.[String(cr.indice)];
-      console.log(`  pronóstico: ${ep?.local} vs ${ep?.vis} ${ep?.gl}-${ep?.gv}`);
-      if(!ep||ep.gl===null||ep.gv===null) return;
+      const crucesP = Object.values(ef[cr.fase]||{});
 
-      // Emparejamiento: mismos equipos en la misma fase
-      const lR=cr.local, vR=cr.vis, lP=ep.local, vP=ep.vis;
-      const mismosEq = lP && vP && lR && vR &&
-        ((lP===lR&&vP===vR)||(lP===vR&&vP===lR));
-      if(mismosEq) r3 += config.r3.emparej||5;
+      // Buscar en el pronóstico del jugador si hay un cruce con los mismos equipos en esta fase
+      const ep = crucesP.find(p => {
+        if(!p||p.gl===null||p.gv===null) return false;
+        const lP=p.local, vP=p.vis, lR=cr.local, vR=cr.vis;
+        return lP&&vP&&lR&&vR&&((lP===lR&&vP===vR)||(lP===vR&&vP===lR));
+      });
 
-      // Ganador
-      const ganR = cr.gl>cr.gv?cr.local:cr.gv>cr.gl?cr.vis:cr.elegido==='local'?cr.local:cr.vis;
-      const ganP = ep.gl>ep.gv?ep.local:ep.gv>ep.gl?ep.vis:ep.elegido==='local'?ep.local:ep.vis;
-      if(ganR&&ganP&&ganR===ganP) r3 += config.r3.ganador||1;
-
-      // Marcador exacto
-      if(ep.gl===cr.gl&&ep.gv===cr.gv) r3 += config.r3.exacto||3;
+      if(ep) {
+        // ✅ Emparejamiento acertado
+        r3 += config.r3.emparej||5;
+        // Ganador
+        const ganR = cr.gl>cr.gv?cr.local:cr.gv>cr.gl?cr.vis:cr.elegido==='local'?cr.local:cr.vis;
+        const ganP = ep.gl>ep.gv?ep.local:ep.gv>ep.gl?ep.vis:ep.elegido==='local'?ep.local:ep.vis;
+        if(ganR&&ganP&&ganR===ganP) r3 += config.r3.ganador||1;
+        // Marcador exacto
+        if(ep.gl===cr.gl&&ep.gv===cr.gv) r3 += config.r3.exacto||3;
+      }
     });
   }
 
@@ -427,6 +435,11 @@ function calcPuntos(pron, real, reglas, crucesReal, posReal) {
       // Mapear posiciones a índices de tabla
       const idxR4 = {'1':0,'2':1,'3':2,'4':3,'FINAL':3,'SEMI':4,'QTR':4,'OCT':5,'D16':6,'G':7};
 
+      // Debug: mostrar posiciones de equipos clave
+      console.log('posReal España:', posReal['España'], 'posP España:', posP['España']);
+      console.log('posReal Inglaterra:', posReal['Inglaterra'], 'posP Inglaterra:', posP['Inglaterra']);
+      console.log('posReal Brasil:', posReal['Brasil'], 'posP Brasil:', posP['Brasil']);
+      console.log('posReal Francia:', posReal['Francia'], 'posP Francia:', posP['Francia']);
       // Comparar posición real (de BD) vs pronóstico
       GRUPOS.forEach(g => g.equipos.forEach(eq => {
         const pr = posReal[eq], pp = posP[eq];
