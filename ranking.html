@@ -425,7 +425,7 @@ function calcPuntos(pron, real, reglas, crucesReal, posReal) {
       // Avances por fase
       const gan=(fase,i)=>{ const e=ef[fase]?.[i]||ef[fase]?.[String(i)]; if(!e||e.gl===null||e.gv===null)return null; const lEq=e.local||'?',vEq=e.vis||'?'; if(e.gl>e.gv)return lEq;if(e.gv>e.gl)return vEq;return e.elegido==='local'?lEq:e.elegido==='visitante'?vEq:null; };
       const per=(fase,i)=>{ const e=ef[fase]?.[i]||ef[fase]?.[String(i)]; if(!e||e.gl===null||e.gv===null)return null; const lEq=e.local||'?',vEq=e.vis||'?'; if(e.gl>e.gv)return vEq;if(e.gv>e.gl)return lEq;return e.elegido==='local'?vEq:e.elegido==='visitante'?lEq:null; };
-      for(let i=0;i<16;i++){const g=gan('d16',i);if(g&&g!=='?')posP[g]='OCT';}
+      for(let i=0;i<16;i++){const g=gan('d16',i),p=per('d16',i);if(g&&g!=='?')posP[g]='OCT';if(p&&p!=='?')posP[p]='D16';}
       for(let i=0;i<8;i++){const g=gan('oct',i),p=per('oct',i);if(g&&g!=='?')posP[g]='QTR';if(p&&p!=='?')posP[p]='OCT';}
       for(let i=0;i<4;i++){const g=gan('qtr',i),p=per('qtr',i);if(g&&g!=='?')posP[g]='SEMI';if(p&&p!=='?')posP[p]='QTR';}
       for(let i=0;i<2;i++){const g=gan('semi',i),p=per('semi',i);if(g&&g!=='?')posP[g]='FINAL';if(p&&p!=='?')posP[p]='4';}
