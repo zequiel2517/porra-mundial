@@ -325,7 +325,7 @@ function buildBracket(resArr, faseData, tercerosOvr) {
   return bracket;
 }
 
-function calcPuntos(pron, real, reglas, crucesReal, posReal) {
+function calcPuntos(pron, real, reglas, crucesReal, posReal, posPronBD) {
   let r1=0, r2=0, r3=0, r4=0;
   const config = reglas;
   crucesReal = crucesReal || [];
@@ -396,50 +396,16 @@ function calcPuntos(pron, real, reglas, crucesReal, posReal) {
     });
   }
 
-  // REGLA 4: posiciones finales — usando tabla posiciones_finales de BD
+  // REGLA 4: posiciones finales — usando pronostico_posiciones de BD si disponible
   if(config.r4?.activa && config.r4?.tabla && Object.keys(posReal).length > 0) {
     try {
-      const POS_IDX = {'1':0,'2':1,'3':2,'4':3,'SEMI':4,'QTR':4,'OCT':5,'D16':6,'G':7};
       const tabla = config.r4.tabla;
-
-      // Calcular posiciones del pronóstico del jugador
-      const posP = {};
-      GRUPOS.forEach(g => g.equipos.forEach(eq => { posP[eq] = 'G'; }));
-      const ef = pron.estadoFase || {};
-      const res = pron.resultados || [];
-
-      // Clasificados de grupos → D16
-      GRUPOS.forEach((g,gi) => {
-        const stats={};
-        g.equipos.forEach(e=>{stats[e]={pts:0,gf:0,gc:0};});
-        (res[gi]||[]).forEach((r,pi)=>{
-          if(r.local===null||r.visitante===null)return;
-          const [loc,vis]=g.partidos[pi];
-          stats[loc].gf+=r.local;stats[loc].gc+=r.visitante;stats[vis].gf+=r.visitante;stats[vis].gc+=r.local;
-          if(r.local>r.visitante)stats[loc].pts+=3;else if(r.local<r.visitante)stats[vis].pts+=3;else{stats[loc].pts++;stats[vis].pts++;}
-        });
-        const ord=[...g.equipos].sort((a,b)=>(stats[b].pts-stats[a].pts)||(stats[b].gf-stats[b].gc-(stats[a].gf-stats[a].gc))||stats[b].gf-stats[a].gf);
-        if(ord[0])posP[ord[0]]='D16';if(ord[1])posP[ord[1]]='D16';
-      });
-
-      // Avances por fase
-      const gan=(fase,i)=>{ const e=ef[fase]?.[i]||ef[fase]?.[String(i)]; if(!e||e.gl===null||e.gv===null)return null; const lEq=e.local||'?',vEq=e.vis||'?'; if(e.gl>e.gv)return lEq;if(e.gv>e.gl)return vEq;return e.elegido==='local'?lEq:e.elegido==='visitante'?vEq:null; };
-      const per=(fase,i)=>{ const e=ef[fase]?.[i]||ef[fase]?.[String(i)]; if(!e||e.gl===null||e.gv===null)return null; const lEq=e.local||'?',vEq=e.vis||'?'; if(e.gl>e.gv)return vEq;if(e.gv>e.gl)return lEq;return e.elegido==='local'?vEq:e.elegido==='visitante'?lEq:null; };
-      for(let i=0;i<16;i++){const g=gan('d16',i),p=per('d16',i);if(g&&g!=='?')posP[g]='OCT';if(p&&p!=='?')posP[p]='D16';}
-      for(let i=0;i<8;i++){const g=gan('oct',i),p=per('oct',i);if(g&&g!=='?')posP[g]='QTR';if(p&&p!=='?')posP[p]='OCT';}
-      for(let i=0;i<4;i++){const g=gan('qtr',i),p=per('qtr',i);if(g&&g!=='?')posP[g]='SEMI';if(p&&p!=='?')posP[p]='QTR';}
-      for(let i=0;i<2;i++){const g=gan('semi',i),p=per('semi',i);if(g&&g!=='?')posP[g]='FINAL';if(p&&p!=='?')posP[p]='4';}
-      const g3=gan('tercer',0),p3=per('tercer',0);if(g3&&g3!=='?')posP[g3]='3';if(p3&&p3!=='?')posP[p3]='4';
-      const gF=gan('final',0),pF=per('final',0);if(gF&&gF!=='?')posP[gF]='1';if(pF&&pF!=='?')posP[pF]='2';
+      // Usar posiciones de BD si están disponibles, sino calcular
+      const posP = posPronBD || {};
 
       // Mapear posiciones a índices de tabla
       const idxR4 = {'1':0,'2':1,'3':2,'4':3,'FINAL':3,'SEMI':4,'QTR':4,'OCT':5,'D16':6,'G':7};
 
-      // Debug: mostrar posiciones de equipos clave
-      console.log('posReal España:', posReal['España'], 'posP España:', posP['España']);
-      console.log('posReal Inglaterra:', posReal['Inglaterra'], 'posP Inglaterra:', posP['Inglaterra']);
-      console.log('posReal Brasil:', posReal['Brasil'], 'posP Brasil:', posP['Brasil']);
-      console.log('posReal Francia:', posReal['Francia'], 'posP Francia:', posP['Francia']);
       // Comparar posición real (de BD) vs pronóstico
       GRUPOS.forEach(g => g.equipos.forEach(eq => {
         const pr = posReal[eq], pp = posP[eq];
@@ -586,14 +552,21 @@ async function cargarRanking() {
       return;
     }
 
-    // Cargar cruces y posiciones_finales de BD
-    const [{ data: crucesData }, { data: posData }] = await Promise.all([
+    // Cargar cruces, posiciones_finales y pronostico_posiciones de BD
+    const [{ data: crucesData }, { data: posData }, { data: pronPosData }] = await Promise.all([
       sb.from('cruces').select('*'),
       sb.from('posiciones_finales').select('equipo,posicion'),
+      sb.from('pronostico_posiciones').select('user_id,equipo,posicion'),
     ]);
     const crucesReal = crucesData || [];
     const posReal = {};
     (posData||[]).forEach(p => { posReal[p.equipo] = p.posicion; });
+    // Agrupar posiciones de pronóstico por user_id
+    const pronPosPorUser = {};
+    (pronPosData||[]).forEach(p => {
+      if(!pronPosPorUser[p.user_id]) pronPosPorUser[p.user_id] = {};
+      pronPosPorUser[p.user_id][p.equipo] = p.posicion;
+    });
 
     // Calcular puntos para cada jugador
     const jugadores = pronos.map(p => ({
@@ -604,7 +577,8 @@ async function cargarRanking() {
         realData,
         reglas,
         crucesReal,
-        posReal
+        posReal,
+        pronPosPorUser[p.user_id] || null
       )
     }));
 
