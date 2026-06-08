@@ -365,9 +365,11 @@ function calcPuntos(pron, real, reglas, crucesReal, posReal) {
   if(config.r3?.activa && crucesReal.length > 0) {
     crucesReal.forEach(cr => {
       if(cr.gl===null||cr.gv===null) return; // sin resultado real
+      console.log(`R3 cruce real: ${cr.fase}[${cr.indice}] ${cr.local} vs ${cr.vis} ${cr.gl}-${cr.gv}`);
       // Buscar el pronóstico del jugador para esta misma fase e índice
       const ef = pron.estadoFase || {};
       const ep = ef[cr.fase]?.[cr.indice] || ef[cr.fase]?.[String(cr.indice)];
+      console.log(`  pronóstico: ${ep?.local} vs ${ep?.vis} ${ep?.gl}-${ep?.gv}`);
       if(!ep||ep.gl===null||ep.gv===null) return;
 
       // Emparejamiento: mismos equipos en la misma fase
