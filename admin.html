@@ -373,6 +373,93 @@ async function guardarTodo() {
     const { error: e1 } = await sb.from('resultados_reales').upsert({ id:'00000000-0000-0000-0000-000000000001', datos: datosPartidos, updated_at: new Date().toISOString() });
     if(e1) throw e1;
 
+    // Actualizar tabla cruces con todos los partidos de eliminatorias
+    const crucesRows = [];
+    const fases = ['d16','oct','qtr','semi','tercer','final'];
+    const nPorFase = {d16:16,oct:8,qtr:4,semi:2,tercer:1,final:1};
+    fases.forEach(fase => {
+      for(let i=0; i<nPorFase[fase]; i++) {
+        const e = estadoFase[fase]?.[i]||estadoFase[fase]?.[String(i)];
+        if(!e) return;
+        crucesRows.push({
+          fase, indice: i,
+          local:   e.local  || null,
+          vis:     e.vis    || null,
+          gl:      e.gl     !== undefined ? e.gl   : null,
+          gv:      e.gv     !== undefined ? e.gv   : null,
+          elegido: e.elegido || null,
+        });
+      }
+    });
+    if(crucesRows.length > 0) {
+      const { error: ec } = await sb.from('cruces').upsert(crucesRows, {onConflict:'fase,indice'});
+      if(ec) console.warn('Error guardando cruces:', ec.message);
+    }
+
+    // Actualizar posiciones_finales incrementalmente
+    const posUpdates = [];
+    const ganEq = (fase,i) => { const e=estadoFase[fase]?.[i]||estadoFase[fase]?.[String(i)]; if(!e||e.gl===null||e.gv===null)return null; if(e.gl>e.gv)return e.local; if(e.gv>e.gl)return e.vis; return e.elegido==='local'?e.local:e.elegido==='visitante'?e.vis:null; };
+    const perEq = (fase,i) => { const e=estadoFase[fase]?.[i]||estadoFase[fase]?.[String(i)]; if(!e||e.gl===null||e.gv===null)return null; if(e.gl>e.gv)return e.vis; if(e.gv>e.gl)return e.local; return e.elegido==='local'?e.vis:e.elegido==='visitante'?e.local:null; };
+    const setPosicion = (eq, pos) => { if(eq&&eq!=='?') posUpdates.push({equipo:eq, posicion:pos}); };
+
+    // Grupos completos → clasificados pasan a D16
+    GRUPOS.forEach((g, gi) => {
+      const grupoCompleto = resultados[gi].every(r => r.local!==null && r.visitante!==null);
+      if(!grupoCompleto) return;
+      const stats = {};
+      g.equipos.forEach(e=>{stats[e]={pts:0,gf:0,gc:0};});
+      resultados[gi].forEach((r,pi)=>{
+        if(r.local===null||r.visitante===null)return;
+        const [loc,vis]=g.partidos[pi];
+        stats[loc].gf+=r.local;stats[loc].gc+=r.visitante;
+        stats[vis].gf+=r.visitante;stats[vis].gc+=r.local;
+        if(r.local>r.visitante)stats[loc].pts+=3;else if(r.local<r.visitante)stats[vis].pts+=3;else{stats[loc].pts++;stats[vis].pts++;}
+      });
+      const ord=[...g.equipos].sort((a,b)=>(stats[b].pts-stats[a].pts)||(stats[b].gf-stats[b].gc-(stats[a].gf-stats[a].gc))||stats[b].gf-stats[a].gf);
+      if(ord[0])setPosicion(ord[0],'D16');
+      if(ord[1])setPosicion(ord[1],'D16');
+      // Los terceros y cuartos de cada grupo se quedan en G por ahora
+      // (los 8 mejores terceros pasarán a D16 cuando se procesen todos los grupos)
+    });
+
+    // Cuando todos los grupos estén completos, calcular los 8 mejores terceros
+    const todosGruposCompletos = GRUPOS.every((_,gi) => resultados[gi].every(r=>r.local!==null&&r.visitante!==null));
+    if(todosGruposCompletos) {
+      const terceros = GRUPOS.map((g,gi)=>{
+        const stats={};
+        g.equipos.forEach(e=>{stats[e]={pts:0,gf:0,gc:0};});
+        resultados[gi].forEach((r,pi)=>{
+          if(r.local===null)return;
+          const [loc,vis]=g.partidos[pi];
+          stats[loc].gf+=r.local;stats[loc].gc+=r.visitante;stats[vis].gf+=r.visitante;stats[vis].gc+=r.local;
+          if(r.local>r.visitante)stats[loc].pts+=3;else if(r.local<r.visitante)stats[vis].pts+=3;else{stats[loc].pts++;stats[vis].pts++;}
+        });
+        const ord=[...g.equipos].sort((a,b)=>(stats[b].pts-stats[a].pts)||(stats[b].gf-stats[b].gc-(stats[a].gf-stats[a].gc))||stats[b].gf-stats[a].gf);
+        const eq3=ord[2]; const s=stats[eq3];
+        return {eq:eq3,pts:s.pts,dg:s.gf-s.gc,gf:s.gf};
+      }).sort((a,b)=>(b.pts-a.pts)||(b.dg-a.dg)||b.gf-a.gf);
+      terceros.slice(0,8).forEach(t=>setPosicion(t.eq,'D16'));
+    }
+
+    // D16: ganador → OCT, perdedor se queda en D16
+    for(let i=0;i<16;i++) { const g=ganEq('d16',i); if(g) setPosicion(g,'OCT'); }
+    // OCT: ganador → QTR, perdedor se queda en OCT
+    for(let i=0;i<8;i++)  { const g=ganEq('oct',i);  if(g) setPosicion(g,'QTR'); }
+    // QTR: ganador → SEMI, perdedor se queda en QTR
+    for(let i=0;i<4;i++)  { const g=ganEq('qtr',i);  if(g) setPosicion(g,'SEMI'); }
+    // SEMI: ganador → FINAL, perdedor → 4 (provisional, puede mejorar a 3)
+    for(let i=0;i<2;i++)  { const g=ganEq('semi',i),p=perEq('semi',i); if(g)setPosicion(g,'FINAL'); if(p)setPosicion(p,'4'); }
+    // TERCER: ganador=3, perdedor=4
+    const g3=ganEq('tercer',0), p3=perEq('tercer',0);
+    if(g3) setPosicion(g3,'3'); if(p3) setPosicion(p3,'4');
+    // FINAL: ganador=1, perdedor=2
+    const gF=ganEq('final',0), pF=perEq('final',0);
+    if(gF) setPosicion(gF,'1'); if(pF) setPosicion(pF,'2');
+
+    for(const upd of posUpdates) {
+      await sb.from('posiciones_finales').update({posicion: upd.posicion}).eq('equipo', upd.equipo);
+    }
+
     // Guardar reglas
     const reglas = {
       r1: { activa: document.getElementById('chk-r1').checked, ganador: +document.getElementById('r1-ganador').value, exacto: +document.getElementById('r1-exacto').value },

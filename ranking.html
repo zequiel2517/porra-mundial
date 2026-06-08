@@ -325,9 +325,11 @@ function buildBracket(resArr, faseData, tercerosOvr) {
   return bracket;
 }
 
-function calcPuntos(pron, real, reglas) {
+function calcPuntos(pron, real, reglas, crucesReal, posReal) {
   let r1=0, r2=0, r3=0, r4=0;
   const config = reglas;
+  crucesReal = crucesReal || [];
+  posReal = posReal || {};
 
   // REGLA 1: partidos fase de grupos
   if(config.r1?.activa) {
@@ -359,219 +361,77 @@ function calcPuntos(pron, real, reglas) {
     });
   }
 
-  // REGLA 3: eliminatorias — emparejamiento + ganador + marcador exacto
-  // Reconstruimos el bracket real y de pronóstico con nombres de equipos
-  if(config.r3?.activa) {
-    try {
-      const bracketR = buildBracket(real.resultados||[], real.estadoFase||{}, real.tercerosOverride||{});
-      const bracketP = buildBracket(pron.resultados||[], pron.estadoFase||{}, null);
-      const fases = ['d16','oct','qtr','semi','tercer','final'];
+  // REGLA 3: eliminatorias — usando tabla cruces de BD
+  if(config.r3?.activa && crucesReal.length > 0) {
+    crucesReal.forEach(cr => {
+      if(cr.gl===null||cr.gv===null) return; // sin resultado real
+      // Buscar el pronóstico del jugador para esta misma fase e índice
+      const ef = pron.estadoFase || {};
+      const ep = ef[cr.fase]?.[cr.indice] || ef[cr.fase]?.[String(cr.indice)];
+      if(!ep||ep.gl===null||ep.gv===null) return;
 
-      fases.forEach(fk => {
-        const crucesR = bracketR[fk]||[], crucesP = bracketP[fk]||[];
-        crucesR.forEach((cr, i) => {
-          const er = cr.est;
-          if(er.gl===null||er.gv===null) return; // sin resultado real → no puntuar
+      // Emparejamiento: mismos equipos en la misma fase
+      const lR=cr.local, vR=cr.vis, lP=ep.local, vP=ep.vis;
+      const mismosEq = lP && vP && lR && vR &&
+        ((lP===lR&&vP===vR)||(lP===vR&&vP===lR));
+      if(mismosEq) r3 += config.r3.emparej||5;
 
-          // Buscar en el bracket del pronóstico si los mismos equipos se enfrentan en esta fase
-          const equiposR = new Set([cr.local, cr.vis]);
-          const cruceP = crucesP.find(cp => {
-            const equiposP = new Set([cp.local, cp.vis]);
-            return equiposR.size===2 && [...equiposR].every(e=>equiposP.has(e));
-          });
+      // Ganador
+      const ganR = cr.gl>cr.gv?cr.local:cr.gv>cr.gl?cr.vis:cr.elegido==='local'?cr.local:cr.vis;
+      const ganP = ep.gl>ep.gv?ep.local:ep.gv>ep.gl?ep.vis:ep.elegido==='local'?ep.local:ep.vis;
+      if(ganR&&ganP&&ganR===ganP) r3 += config.r3.ganador||1;
 
-          if(cruceP) {
-            // ✅ Emparejamiento acertado
-            r3 += config.r3.emparej||5;
-            const ep = cruceP.est;
-            if(ep.gl===null||ep.gv===null) return;
-            // Ganador: comparar quién ganó (por nombre de equipo)
-            const ganR = ganadorCruce(er)==='local' ? cr.local : ganadorCruce(er)==='visitante' ? cr.vis : null;
-            const ganP = ganadorCruce(ep)==='local' ? cruceP.local : ganadorCruce(ep)==='visitante' ? cruceP.vis : null;
-            if(ganR&&ganP&&ganR===ganP) r3 += config.r3.ganador||1;
-            // Marcador exacto
-            if(ep.gl===er.gl&&ep.gv===er.gv) r3 += config.r3.exacto||3;
-          }
-        });
-      });
-    } catch(e) { console.warn('R3 error:', e); }
+      // Marcador exacto
+      if(ep.gl===cr.gl&&ep.gv===cr.gv) r3 += config.r3.exacto||3;
+    });
   }
 
-  // REGLA 4: posición final de cada selección
-  if(config.r4?.activa && config.r4?.tabla) {
+  // REGLA 4: posiciones finales — usando tabla posiciones_finales de BD
+  if(config.r4?.activa && config.r4?.tabla && Object.keys(posReal).length > 0) {
     try {
-      const POS_IDX = {'1':0,'2':1,'3':2,'4':3,'C':4,'O':5,'D':6,'G':7};
-      // Reconstruir posiciones reales y del pronóstico
-      const posReal = {}; const posP = {};
-      const bracketR = buildBracket(real.resultados||[], real.estadoFase||{}, real.tercerosOverride||{});
-      const bracketP = buildBracket(pron.resultados||[], pron.estadoFase||{}, null);
-
-      // Para el bracket real: usamos buildBracket con nombres reales
-      const asignarPosConBracket = (bracket, res, posObj) => {
-        GRUPOS.forEach(g=>g.equipos.forEach(eq=>{posObj[eq]='G';}));
-        GRUPOS.forEach((_,gi)=>{
-          const orden=ordenGrupo(gi,res);
-          if(orden[0])posObj[orden[0]]='D';
-          if(orden[1])posObj[orden[1]]='D';
-        });
-        (bracket.d16||[]).forEach(cr=>{
-          const g=ganadorCruce(cr.est); if(!g)return;
-          const per=g==='local'?cr.vis:cr.local;
-          if(per&&per!=='?')posObj[per]='D'; // perdedor queda en D16
-          // ganador sigue avanzando
-        });
-        (bracket.oct||[]).forEach(cr=>{
-          const g=ganadorCruce(cr.est); if(!g)return;
-          const gan=g==='local'?cr.local:cr.vis, per=g==='local'?cr.vis:cr.local;
-          if(gan&&gan!=='?')posObj[gan]='C';
-          if(per&&per!=='?')posObj[per]='O';
-        });
-        (bracket.qtr||[]).forEach(cr=>{
-          const g=ganadorCruce(cr.est); if(!g)return;
-          const per=g==='local'?cr.vis:cr.local;
-          if(per&&per!=='?')posObj[per]='C';
-        });
-        (bracket.semi||[]).forEach(cr=>{
-          const g=ganadorCruce(cr.est); if(!g)return;
-          const gan=g==='local'?cr.local:cr.vis, per=g==='local'?cr.vis:cr.local;
-          if(gan&&gan!=='?')posObj[gan]='2';
-          if(per&&per!=='?')posObj[per]='4';
-        });
-        (bracket.tercer||[]).forEach(cr=>{
-          const g=ganadorCruce(cr.est); if(!g)return;
-          const gan=g==='local'?cr.local:cr.vis, per=g==='local'?cr.vis:cr.local;
-          if(gan&&gan!=='?')posObj[gan]='3';
-          if(per&&per!=='?')posObj[per]='4';
-        });
-        (bracket.final||[]).forEach(cr=>{
-          const g=ganadorCruce(cr.est); if(!g)return;
-          const gan=g==='local'?cr.local:cr.vis, per=g==='local'?cr.vis:cr.local;
-          if(gan&&gan!=='?')posObj[gan]='1';
-          if(per&&per!=='?')posObj[per]='2';
-        });
-      };
-
-      asignarPosConBracket(bracketR, real.resultados||[], posReal);
-
-      // Para el pronóstico: simulamos el bracket completo con los resultados del pronóstico
-      // ya que estadoFase del pronóstico no tiene nombres de equipos
-      const simularBracketPron = (pron, posObj) => {
-        const res = pron.resultados||[];
-        const ef = pron.estadoFase||{};
-        GRUPOS.forEach(g=>g.equipos.forEach(eq=>{posObj[eq]='G';}));
-
-        // Clasificados de grupos
-        const p1=[],p2=[],t3=[];
-        GRUPOS.forEach((_,gi)=>{
-          const ord=ordenGrupo(gi,res);
-          if(ord[0]){posObj[ord[0]]='D';p1.push({eq:ord[0],gi});}
-          if(ord[1]){posObj[ord[1]]='D';p2.push({eq:ord[1],gi});}
-          if(ord[2])t3.push({eq:ord[2],gi,pts:(calcStatsGrupo(gi,res)[ord[2]]||{pts:0}).pts,dg:(calcStatsGrupo(gi,res)[ord[2]]||{gf:0,gc:0}).gf-(calcStatsGrupo(gi,res)[ord[2]]||{gf:0,gc:0}).gc,gf:(calcStatsGrupo(gi,res)[ord[2]]||{gf:0}).gf});
-        });
-
-        // D16: usar nombres guardados en estadoFase si existen, sino reconstruir con FIFA_TABLA
-        const crucesD16raw=buildCrucesD16(res,null);
-        const crucesD16=crucesD16raw.map((cr,i)=>{
-          const est=ef.d16?.[i]||{};
-          return {
-            local: est.local ? {eq:est.local} : cr.local,
-            vis:   est.vis   ? {eq:est.vis}   : cr.vis,
-          };
-        });
-
-        // D16: usar estadoFase para saber quién ganó, nombres del bracket
-        crucesD16.forEach((cr,i)=>{
-          const est=ef.d16?.[i]||{gl:null,gv:null,elegido:null};
-          const g=ganadorCruce(est); if(!g)return;
-          const lEq=cr.local?.eq||'?', vEq=cr.vis?.eq||'?';
-          const gan=g==='local'?lEq:vEq, per=g==='local'?vEq:lEq;
-          if(per&&per!=='?')posObj[per]='D';
-          // ganador avanza
-        });
-
-        // OCT: los ganadores de D16 en orden
-        const ganD16=crucesD16.map((cr,i)=>{
-          const est=ef.d16?.[i]||{gl:null,gv:null};
-          const g=ganadorCruce(est);
-          return g==='local'?(cr.local?.eq||'?'):g==='visitante'?(cr.vis?.eq||'?'):'?';
-        });
-        for(let i=0;i<8;i++){
-          const lEq=ganD16[i*2]||'?', vEq=ganD16[i*2+1]||'?';
-          const est=ef.oct?.[i]||{gl:null,gv:null};
-          const g=ganadorCruce(est); if(!g)continue;
-          const gan=g==='local'?lEq:vEq, per=g==='local'?vEq:lEq;
-          if(gan&&gan!=='?')posObj[gan]='C';
-          if(per&&per!=='?')posObj[per]='O';
-        }
-        // QTR
-        const ganOct=Array.from({length:8},(_,i)=>{
-          const lEq=ganD16[i*2]||'?', vEq=ganD16[i*2+1]||'?';
-          const est=ef.oct?.[i]||{gl:null,gv:null};
-          const g=ganadorCruce(est);
-          return g==='local'?lEq:g==='visitante'?vEq:'?';
-        });
-        for(let i=0;i<4;i++){
-          const lEq=ganOct[i*2]||'?', vEq=ganOct[i*2+1]||'?';
-          const est=ef.qtr?.[i]||{gl:null,gv:null};
-          const g=ganadorCruce(est); if(!g)continue;
-          const per=g==='local'?vEq:lEq;
-          if(per&&per!=='?')posObj[per]='C';
-        }
-        // SEMI
-        const ganQtr=Array.from({length:4},(_,i)=>{
-          const lEq=ganOct[i*2]||'?', vEq=ganOct[i*2+1]||'?';
-          const est=ef.qtr?.[i]||{gl:null,gv:null};
-          const g=ganadorCruce(est);
-          return g==='local'?lEq:g==='visitante'?vEq:'?';
-        });
-        for(let i=0;i<2;i++){
-          const lEq=ganQtr[i*2]||'?', vEq=ganQtr[i*2+1]||'?';
-          const est=ef.semi?.[i]||{gl:null,gv:null};
-          const g=ganadorCruce(est); if(!g)continue;
-          const gan=g==='local'?lEq:vEq, per=g==='local'?vEq:lEq;
-          if(gan&&gan!=='?')posObj[gan]='2';
-          if(per&&per!=='?')posObj[per]='4';
-        }
-        // TERCER
-        const ganSemi=Array.from({length:2},(_,i)=>{
-          const lEq=ganQtr[i*2]||'?', vEq=ganQtr[i*2+1]||'?';
-          const est=ef.semi?.[i]||{gl:null,gv:null};
-          const g=ganadorCruce(est);
-          return g==='local'?lEq:g==='visitante'?vEq:'?';
-        });
-        const perSemi=Array.from({length:2},(_,i)=>{
-          const lEq=ganQtr[i*2]||'?', vEq=ganQtr[i*2+1]||'?';
-          const est=ef.semi?.[i]||{gl:null,gv:null};
-          const g=ganadorCruce(est);
-          return g==='local'?vEq:g==='visitante'?lEq:'?';
-        });
-        const estT=ef.tercer?.[0]||{gl:null,gv:null};
-        const gT=ganadorCruce(estT);
-        if(gT){
-          const ganT=gT==='local'?perSemi[0]:perSemi[1], perT=gT==='local'?perSemi[1]:perSemi[0];
-          if(ganT&&ganT!=='?')posObj[ganT]='3';
-          if(perT&&perT!=='?')posObj[perT]='4';
-        }
-        // FINAL
-        const estF=ef.final?.[0]||{gl:null,gv:null};
-        const gF=ganadorCruce(estF);
-        if(gF){
-          const ganF=gF==='local'?ganSemi[0]:ganSemi[1], perF=gF==='local'?ganSemi[1]:ganSemi[0];
-          if(ganF&&ganF!=='?')posObj[ganF]='1';
-          if(perF&&perF!=='?')posObj[perF]='2';
-        }
-      };
-
-      simularBracketPron(pron, posP);
-
+      const POS_IDX = {'1':0,'2':1,'3':2,'4':3,'SEMI':4,'QTR':4,'OCT':5,'D16':6,'G':7};
       const tabla = config.r4.tabla;
-      GRUPOS.forEach(g=>g.equipos.forEach(eq=>{
+
+      // Calcular posiciones del pronóstico del jugador
+      const posP = {};
+      GRUPOS.forEach(g => g.equipos.forEach(eq => { posP[eq] = 'G'; }));
+      const ef = pron.estadoFase || {};
+      const res = pron.resultados || [];
+
+      // Clasificados de grupos → D16
+      GRUPOS.forEach((g,gi) => {
+        const stats={};
+        g.equipos.forEach(e=>{stats[e]={pts:0,gf:0,gc:0};});
+        (res[gi]||[]).forEach((r,pi)=>{
+          if(r.local===null||r.visitante===null)return;
+          const [loc,vis]=g.partidos[pi];
+          stats[loc].gf+=r.local;stats[loc].gc+=r.visitante;stats[vis].gf+=r.visitante;stats[vis].gc+=r.local;
+          if(r.local>r.visitante)stats[loc].pts+=3;else if(r.local<r.visitante)stats[vis].pts+=3;else{stats[loc].pts++;stats[vis].pts++;}
+        });
+        const ord=[...g.equipos].sort((a,b)=>(stats[b].pts-stats[a].pts)||(stats[b].gf-stats[b].gc-(stats[a].gf-stats[a].gc))||stats[b].gf-stats[a].gf);
+        if(ord[0])posP[ord[0]]='D16';if(ord[1])posP[ord[1]]='D16';
+      });
+
+      // Avances por fase
+      const gan=(fase,i)=>{ const e=ef[fase]?.[i]||ef[fase]?.[String(i)]; if(!e||e.gl===null||e.gv===null)return null; const lEq=e.local||'?',vEq=e.vis||'?'; if(e.gl>e.gv)return lEq;if(e.gv>e.gl)return vEq;return e.elegido==='local'?lEq:e.elegido==='visitante'?vEq:null; };
+      const per=(fase,i)=>{ const e=ef[fase]?.[i]||ef[fase]?.[String(i)]; if(!e||e.gl===null||e.gv===null)return null; const lEq=e.local||'?',vEq=e.vis||'?'; if(e.gl>e.gv)return vEq;if(e.gv>e.gl)return lEq;return e.elegido==='local'?vEq:e.elegido==='visitante'?lEq:null; };
+      for(let i=0;i<16;i++){const g=gan('d16',i);if(g&&g!=='?')posP[g]='OCT';}
+      for(let i=0;i<8;i++){const g=gan('oct',i),p=per('oct',i);if(g&&g!=='?')posP[g]='QTR';if(p&&p!=='?')posP[p]='OCT';}
+      for(let i=0;i<4;i++){const g=gan('qtr',i),p=per('qtr',i);if(g&&g!=='?')posP[g]='SEMI';if(p&&p!=='?')posP[p]='QTR';}
+      for(let i=0;i<2;i++){const g=gan('semi',i),p=per('semi',i);if(g&&g!=='?')posP[g]='FINAL';if(p&&p!=='?')posP[p]='4';}
+      const g3=gan('tercer',0),p3=per('tercer',0);if(g3&&g3!=='?')posP[g3]='3';if(p3&&p3!=='?')posP[p3]='4';
+      const gF=gan('final',0),pF=per('final',0);if(gF&&gF!=='?')posP[gF]='1';if(pF&&pF!=='?')posP[pF]='2';
+
+      // Mapear posiciones a índices de tabla
+      const idxR4 = {'1':0,'2':1,'3':2,'4':3,'FINAL':3,'SEMI':4,'QTR':4,'OCT':5,'D16':6,'G':7};
+
+      // Comparar posición real (de BD) vs pronóstico
+      GRUPOS.forEach(g => g.equipos.forEach(eq => {
         const pr = posReal[eq], pp = posP[eq];
         if(!pr||!pp) return;
-        const ri = POS_IDX[pr], pi2 = POS_IDX[pp];
-        if(ri!==undefined&&pi2!==undefined&&tabla[pi2]?.[ri]!==undefined) {
-          r4 += tabla[pi2][ri];
-        }
+        const ri = idxR4[pr] ?? 7;
+        const pi = idxR4[pp] ?? 7;
+        if(tabla[pi]?.[ri] !== undefined) r4 += tabla[pi][ri];
       }));
     } catch(e) { console.warn('R4 error:', e); }
   }
@@ -711,6 +571,15 @@ async function cargarRanking() {
       return;
     }
 
+    // Cargar cruces y posiciones_finales de BD
+    const [{ data: crucesData }, { data: posData }] = await Promise.all([
+      sb.from('cruces').select('*'),
+      sb.from('posiciones_finales').select('equipo,posicion'),
+    ]);
+    const crucesReal = crucesData || [];
+    const posReal = {};
+    (posData||[]).forEach(p => { posReal[p.equipo] = p.posicion; });
+
     // Calcular puntos para cada jugador
     const jugadores = pronos.map(p => ({
       user_id: p.user_id,
@@ -718,7 +587,9 @@ async function cargarRanking() {
       puntos: calcPuntos(
         typeof p.datos === 'string' ? JSON.parse(p.datos) : (p.datos||{}),
         realData,
-        reglas
+        reglas,
+        crucesReal,
+        posReal
       )
     }));
 
