@@ -287,6 +287,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ===== AUTH =====
 let currentUser = null;
+let posicionesPronostico = {};
 let hayPendiente = false;
 
 let estadoTorneo = 'abierto';
@@ -376,6 +377,7 @@ async function guardarPronostico() {
       // Borrar posiciones anteriores e insertar nuevas
       await sb.from('pronostico_posiciones').delete().eq('user_id', currentUser.id);
       if(rows.length > 0) await sb.from('pronostico_posiciones').insert(rows);
+      posicionesPronostico = posP;
     } catch(e) { console.warn('Error guardando posiciones:', e); }
 
     const ahora = new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
@@ -446,8 +448,12 @@ function calcularPosicionesPronostico() {
 async function cargarPronostico() {
   try {
     console.log('cargarPronostico: iniciando para user', currentUser.id);
-    const { data, error } = await sb.from('pronosticos')
-      .select('datos').eq('user_id', currentUser.id).maybeSingle();
+    const [{ data, error }, { data: posData }] = await Promise.all([
+      sb.from('pronosticos').select('datos').eq('user_id', currentUser.id).maybeSingle(),
+      sb.from('pronostico_posiciones').select('equipo,posicion').eq('user_id', currentUser.id),
+    ]);
+    posicionesPronostico = {};
+    (posData||[]).forEach(p => { posicionesPronostico[p.equipo] = p.posicion; });
 
     console.log('cargarPronostico: data=', data, 'error=', error);
 
@@ -883,31 +889,31 @@ function renderFase(faseKey){
 function eqTag(obj){if(!obj||obj.eq==='?')return `<span class="palmares-pending">Por determinar</span>`;return `<span class="palmares-eq"><span class="bf">${getFlagFor(obj.eq)}</span>${obj.eq}</span>`;}
 function eqTagSmall(obj){if(!obj||obj.eq==='?')return '';return `<span class="palmares-tag"><span class="bf">${getFlagFor(obj.eq)}</span>${obj.eq}</span>`;}
 function renderPalmares(){
-  const finalCr=buildCrucesFinal()[0],estFinal=estadoFase.final[0]||{};
-  const lgf=ganadorCruce(estFinal),lpf=perdedorCruce(estFinal);
-  const campeon=lgf?{...(lgf==='local'?finalCr.local:finalCr.vis)}:null;
-  const sub=lpf?{...(lpf==='local'?finalCr.local:finalCr.vis)}:null;
-  const tercCr=buildCrucesTercer()[0],estTerc=estadoFase.tercer[0]||{};
-  const lgt=ganadorCruce(estTerc),lpt=perdedorCruce(estTerc);
-  const tercero=lgt?{...(lgt==='local'?tercCr.local:tercCr.vis)}:null;
-  const cuarto=lpt?{...(lpt==='local'?tercCr.local:tercCr.vis)}:null;
-  const cOct=buildCrucesOct();
-  const cuartos=cOct.map((cr,i)=>{const est=estadoFase.oct[i]||estadoFase.oct[String(i)],lado=perdedorCruce(est);if(!lado)return null;return lado==='local'?cr.local:cr.vis;}).filter(Boolean);
-  const cD16=buildCrucesD16();
-  const octavos=cD16.map((cr,i)=>{const est=estadoFase.d16[i],lado=perdedorCruce(est);if(!lado)return null;return lado==='local'?cr.local:(cr.vis||null);}).filter(Boolean);
-  const t3all=get8Terceros();
-  const top8gi=new Set(t3all.slice(0,8).map(t=>t.gi));
-  const eliminadosGrupos=[];
-  GRUPOS.forEach((_,gi)=>{const cl=getClasificados(gi),orden=getOrdenFinal(gi,cl.stats);eliminadosGrupos.push({eq:orden[3],gi});if(!top8gi.has(gi))eliminadosGrupos.push({eq:cl.p3,gi});});
+  const pos = posicionesPronostico;
+  const byPos = p => Object.entries(pos).filter(([,v])=>v===p).map(([k])=>({eq:k,gi:-1}));
+  const vacio = '<div class="palmares-grupo"><span class="palmares-pending" style="padding:8px">Por determinar — guarda tu pronóstico para ver este resumen</span></div>';
+  const hasDatos = Object.keys(pos).length > 0;
+
+  const campeon  = byPos('1')[0]||null;
+  const sub      = byPos('2')[0]||null;
+  const tercero  = byPos('3')[0]||null;
+  const cuarto   = byPos('4')[0]||null;
+  const cuartos  = byPos('QTR');
+  const octavos  = byPos('OCT');
+  const d16      = byPos('D16');
+  const grupos   = byPos('G');
+
   const s=(tit,cont)=>`<div class="palmares-seccion"><div class="palmares-titulo">${tit}</div>${cont}</div>`;
   const f=(emoji,obj)=>`<div class="palmares-fila"><span class="palmares-pos">${emoji}</span>${eqTag(obj)}</div>`;
   const grp=(objs)=>`<div class="palmares-grupo">${objs.map(o=>eqTagSmall(o)).join('')}</div>`;
+
   document.getElementById('slide-palmares').innerHTML=`<div class="palmares-header"><button class="nav-btn" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2)" onclick="irA(idx-1)">◀</button><span class="grupo-header-titulo">🏆 Tu Pronóstico Final</span><button class="nav-btn" style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2)" onclick="irA(idx+1)" id="fase-next-btn">▶</button></div>
     <div class="palmares-card">
-      ${s('Podio',f('🥇',campeon)+f('🥈',sub)+f('🥉',tercero)+f('4️⃣',cuarto))}
-      ${s('Cuartos de Final',cuartos.length>0?grp(cuartos):'<div class="palmares-grupo"><span class="palmares-pending" style="padding:8px">Por determinar</span></div>')}
-      ${s('Octavos de Final',octavos.length>0?grp(octavos):'<div class="palmares-grupo"><span class="palmares-pending" style="padding:8px">Por determinar</span></div>')}
-      ${s('Eliminados en Grupos',eliminadosGrupos.length>0?grp(eliminadosGrupos):'<div class="palmares-grupo"><span class="palmares-pending" style="padding:8px">Por determinar</span></div>')}
+      ${s('Podio', hasDatos ? f('🥇',campeon)+f('🥈',sub)+f('🥉',tercero)+f('4️⃣',cuarto) : vacio)}
+      ${s('Cuartos de Final', cuartos.length>0 ? grp(cuartos) : vacio)}
+      ${s('Octavos de Final', octavos.length>0 ? grp(octavos) : vacio)}
+      ${s('Dieciseisavos de Final', d16.length>0 ? grp(d16) : vacio)}
+      ${s('Eliminados en Grupos', grupos.length>0 ? grp(grupos) : vacio)}
     </div>`;
 }
 
@@ -1011,6 +1017,10 @@ function elegirMarcador(gl, gv) {
     if(gl!==null && gv!==null && gl!==gv) estadoFase[fase][ii].elegido=null;
     if(bsCtx.localEq) estadoFase[fase][ii].local = bsCtx.localEq;
     if(bsCtx.visEq)   estadoFase[fase][ii].vis   = bsCtx.visEq;
+    // Si se modifica una semi o qtr, resetear tercer puesto (equipos cambian)
+    if(fase === 'semi' || fase === 'qtr') {
+      estadoFase.tercer[0] = {gl:null, gv:null, elegido:null, local:null, vis:null};
+    }
     actualizarBSDisplay(gl, gv);
     renderBSGrid(gl, gv);
     renderFase(fase==='tercer'?'semi':fase);
