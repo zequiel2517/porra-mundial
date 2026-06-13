@@ -211,7 +211,7 @@ async function cargar() {
       sb.auth.getSession(),
       sb.from('config_reglas').select('reglas').eq('id',1).maybeSingle(),
       sb.from('cruces').select('*'),
-      sb.from('posiciones_finales').select('equipo,posicion'),
+      sb.from('posiciones_finales').select('equipo,posicion,eliminada'),
       sb.from('pronostico_posiciones').select('user_id,equipo,posicion'),
     ]);
 
@@ -222,7 +222,8 @@ async function cargar() {
     const crucesReal = crucesData || [];
     // Posiciones finales reales
     const posReal = {};
-    (posData||[]).forEach(p => { posReal[p.equipo] = p.posicion; });
+    const eliminadaReal = {};
+    (posData||[]).forEach(p => { posReal[p.equipo] = p.posicion; eliminadaReal[p.equipo] = p.eliminada; });
     // Posiciones pronosticadas por jugador
     const pronPosPorUser = {};
     (pronPosData||[]).forEach(p => {
@@ -273,6 +274,7 @@ async function cargar() {
       const POS_IDX = {'1':0,'2':1,'3':2,'4':3,'SEMI':4,'QTR':4,'OCT':5,'D16':6,'G':7};
       if(tabla && Object.keys(posReal).length > 0) {
         GRUPOS.forEach(g => g.equipos.forEach(eq => {
+          if(!eliminadaReal?.[eq]) return; // no eliminado aún
           const pr = posReal[eq], pp = posP[eq];
           if(!pr||!pp) return;
           const ri = POS_IDX[pr]??7, pi = POS_IDX[pp]??7;
@@ -283,7 +285,7 @@ async function cargar() {
       return { user_id: p.user_id, nombre: p.nombre, datos, esYo: p.user_id===miId, total };
     }).sort((a,b) => b.total - a.total); // ordenar por ranking (simplificado)
 
-    globalData = { jugadores, real, reglas, miId, crucesReal, posReal, pronPosPorUser };
+    globalData = { jugadores, real, reglas, miId, crucesReal, posReal, pronPosPorUser, eliminadaReal };
     renderTabla();
   } catch(e) {
     document.getElementById('contenido').innerHTML = `<div class="loading-txt">❌ Error: ${e.message}</div>`;
@@ -292,7 +294,7 @@ async function cargar() {
 
 function renderTabla() {
   if(!globalData) return;
-  const { jugadores, real, reglas, miId, crucesReal, posReal, pronPosPorUser } = globalData;
+  const { jugadores, real, reglas, miId, crucesReal, posReal, pronPosPorUser, eliminadaReal } = globalData;
   const mostrarGrupos = document.getElementById('chk-grupos').checked;
   const mostrarElim   = document.getElementById('chk-elim').checked;
 
@@ -515,6 +517,7 @@ function renderTabla() {
         html += '</tr>';
       }
 
+      if(!eliminadaReal?.[eq]) return; // no eliminado aún
       html += '<tr>';
       html += `<td class="td-partido"><div class="partido-real"><span>${F(eq)}</span> <span style="font-size:11px;color:var(--text)">${eq}</span></div></td>`;
 

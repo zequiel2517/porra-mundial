@@ -168,6 +168,7 @@
 <div class="tabs-bar">
   <button class="tab-btn activo" id="tab-partidos" onclick="cambiarTab('partidos')">⚽ Resultados reales</button>
   <button class="tab-btn" id="tab-reglas" onclick="cambiarTab('reglas')">⚙️ Reglas de puntuación</button>
+  <button class="tab-btn" id="tab-eliminados" onclick="cambiarTab('eliminados')">❌ Eliminados</button>
 </div>
 
 <!-- PARTIDOS -->
@@ -330,8 +331,11 @@ function cambiarTab(tab) {
   tabActiva = tab;
   document.getElementById('panel-partidos').style.display = tab==='partidos'?'':'none';
   document.getElementById('panel-reglas').classList.toggle('activo', tab==='reglas');
+  document.getElementById('panel-eliminados').style.display = tab==='eliminados'?'block':'none';
   document.getElementById('tab-partidos').classList.toggle('activo', tab==='partidos');
   document.getElementById('tab-reglas').classList.toggle('activo', tab==='reglas');
+  document.getElementById('tab-eliminados').classList.toggle('activo', tab==='eliminados');
+  if(tab==='eliminados') renderEliminados();
 }
 
 function toggleRegla(id) {
@@ -998,7 +1002,55 @@ document.addEventListener('DOMContentLoaded',()=>{
     bsSheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-bsStartY>60)cerrarBS();});
   }
 });
+
+// ===== ELIMINADOS =====
+async function renderEliminados() {
+  const lista = document.getElementById('eliminados-lista');
+  lista.innerHTML = '<div style="padding:8px;color:var(--text3)">Cargando...</div>';
+  const { data, error } = await sb.from('posiciones_finales').select('equipo,posicion,eliminada').order('equipo');
+  if(error) { lista.innerHTML = `<div style="color:red">Error: ${error.message}</div>`; return; }
+  const grupos_pos = {};
+  (data||[]).forEach(e => { if(!grupos_pos[e.posicion])grupos_pos[e.posicion]=[]; grupos_pos[e.posicion].push(e); });
+  const orden = ['1','2','3','4','SEMI','FINAL','QTR','OCT','D16','G'];
+  const labels = {'1':'🥇 Campeón','2':'🥈 Subcampeón','3':'🥉 3er Puesto','4':'4º Puesto','SEMI':'Semifinales','FINAL':'Final','QTR':'Cuartos','OCT':'Octavos','D16':'Dieciseisavos','G':'Fase de Grupos'};
+  let html = '';
+  orden.forEach(pos => {
+    const equipos = grupos_pos[pos];
+    if(!equipos||!equipos.length) return;
+    html += `<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;padding:6px 4px 4px">${labels[pos]||pos}</div>`;
+    equipos.sort((a,b)=>a.equipo.localeCompare(b.equipo)).forEach(e => {
+      html += `<label style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:0.5px solid var(--border);cursor:pointer">
+        <input type="checkbox" data-equipo="${e.equipo}" ${e.eliminada?'checked':''} style="width:18px;height:18px;accent-color:#dc2626;cursor:pointer">
+        <span style="font-size:13px">${e.equipo}</span>
+        <span style="font-size:11px;color:var(--text3);margin-left:auto">${pos}</span>
+      </label>`;
+    });
+    html += '</div>';
+  });
+  lista.innerHTML = html;
+}
+
+async function guardarEliminados() {
+  const checkboxes = document.querySelectorAll('#eliminados-lista input[type="checkbox"]');
+  let errores = 0;
+  for(const cb of checkboxes) {
+    const { error } = await sb.from('posiciones_finales').update({ eliminada: cb.checked }).eq('equipo', cb.dataset.equipo);
+    if(error) errores++;
+  }
+  if(errores===0) alert('✅ Guardado correctamente');
+  else alert(`⚠️ ${errores} errores al guardar`);
+}
 </script>
+
+<div id="panel-eliminados" style="display:none;padding-bottom:20px">
+  <div style="padding:12px 16px;font-size:13px;color:var(--text2)">
+    Marca los equipos ya eliminados del torneo. Solo los equipos marcados sumarán puntos de R4.
+  </div>
+  <div id="eliminados-lista" style="padding:0 12px 16px"></div>
+  <div style="padding:8px 16px 16px">
+    <button onclick="guardarEliminados()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;width:100%">💾 Guardar eliminados</button>
+  </div>
+</div>
 
 <div class="bs-overlay" id="bs-overlay" onclick="cerrarBS()"></div>
 <div class="bs-sheet" id="bs-sheet">
