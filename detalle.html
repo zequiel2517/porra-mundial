@@ -107,18 +107,18 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const GRUPOS = [
-  { nombre:"Grupo A", equipos:["México","Sudáfrica","Corea del Sur","Rep. Checa"], partidos:[["México","Sudáfrica"],["Corea del Sur","Rep. Checa"],["Rep. Checa","Sudáfrica"],["México","Corea del Sur"],["Sudáfrica","México"],["Rep. Checa","Corea del Sur"]] },
-  { nombre:"Grupo B", equipos:["Canadá","Bosnia y Herz.","Catar","Suiza"], partidos:[["Canadá","Bosnia y Herz."],["Catar","Suiza"],["Suiza","Bosnia y Herz."],["Canadá","Catar"],["Bosnia y Herz.","Canadá"],["Suiza","Catar"]] },
-  { nombre:"Grupo C", equipos:["Brasil","Marruecos","Haití","Escocia"], partidos:[["Brasil","Marruecos"],["Haití","Escocia"],["Escocia","Marruecos"],["Brasil","Haití"],["Marruecos","Brasil"],["Escocia","Haití"]] },
-  { nombre:"Grupo D", equipos:["Estados Unidos","Paraguay","Australia","Turquía"], partidos:[["Estados Unidos","Paraguay"],["Australia","Turquía"],["Turquía","Paraguay"],["Estados Unidos","Australia"],["Paraguay","Estados Unidos"],["Turquía","Australia"]] },
-  { nombre:"Grupo E", equipos:["Alemania","Curazao","Costa de Marfil","Ecuador"], partidos:[["Alemania","Curazao"],["Costa de Marfil","Ecuador"],["Alemania","Costa de Marfil"],["Ecuador","Curazao"],["Curazao","Alemania"],["Ecuador","Costa de Marfil"]] },
-  { nombre:"Grupo F", equipos:["Países Bajos","Japón","Suecia","Túnez"], partidos:[["Países Bajos","Japón"],["Suecia","Túnez"],["Países Bajos","Suecia"],["Japón","Túnez"],["Japón","Países Bajos"],["Túnez","Suecia"]] },
-  { nombre:"Grupo G", equipos:["Bélgica","Egipto","Irán","Nueva Zelanda"], partidos:[["Bélgica","Egipto"],["Irán","Nueva Zelanda"],["Bélgica","Irán"],["Nueva Zelanda","Egipto"],["Egipto","Bélgica"],["Nueva Zelanda","Irán"]] },
-  { nombre:"Grupo H", equipos:["España","Cabo Verde","Arabia Saudita","Uruguay"], partidos:[["España","Cabo Verde"],["Arabia Saudita","Uruguay"],["España","Arabia Saudita"],["Uruguay","Cabo Verde"],["Cabo Verde","España"],["Uruguay","Arabia Saudita"]] },
-  { nombre:"Grupo I", equipos:["Francia","Senegal","Irak","Noruega"], partidos:[["Francia","Senegal"],["Irak","Noruega"],["Francia","Irak"],["Noruega","Senegal"],["Senegal","Francia"],["Noruega","Irak"]] },
-  { nombre:"Grupo J", equipos:["Argentina","Argelia","Austria","Jordania"], partidos:[["Argentina","Argelia"],["Austria","Jordania"],["Argentina","Austria"],["Jordania","Argelia"],["Argelia","Argentina"],["Jordania","Austria"]] },
-  { nombre:"Grupo K", equipos:["Portugal","R.D. Congo","Uzbekistán","Colombia"], partidos:[["Portugal","R.D. Congo"],["Uzbekistán","Colombia"],["Portugal","Uzbekistán"],["Colombia","R.D. Congo"],["R.D. Congo","Portugal"],["Colombia","Uzbekistán"]] },
-  { nombre:"Grupo L", equipos:["Inglaterra","Croacia","Ghana","Panamá"], partidos:[["Inglaterra","Croacia"],["Ghana","Panamá"],["Inglaterra","Ghana"],["Panamá","Croacia"],["Croacia","Inglaterra"],["Panamá","Ghana"]] },
+  { nombre:"Grupo A", equipos:["México","Sudáfrica","Corea del Sur","Rep. Checa"], partidos:[["México","Sudáfrica"],["Corea del Sur","Rep. Checa"],["Rep. Checa","Sudáfrica"],["México","Corea del Sur"],["Sudáfrica","Corea del Sur"],["Rep. Checa","México"]] },
+  { nombre:"Grupo B", equipos:["Canadá","Bosnia y Herz.","Catar","Suiza"], partidos:[["Canadá","Bosnia y Herz."],["Catar","Suiza"],["Suiza","Bosnia y Herz."],["Canadá","Catar"],["Suiza","Canadá"],["Bosnia y Herz.","Catar"]] },
+  { nombre:"Grupo C", equipos:["Brasil","Marruecos","Haití","Escocia"], partidos:[["Brasil","Marruecos"],["Haití","Escocia"],["Escocia","Marruecos"],["Brasil","Haití"],["Escocia","Brasil"],["Marruecos","Haití"]] },
+  { nombre:"Grupo D", equipos:["Estados Unidos","Paraguay","Australia","Turquía"], partidos:[["Estados Unidos","Paraguay"],["Australia","Turquía"],["Turquía","Paraguay"],["Estados Unidos","Australia"],["Turquía","Estados Unidos"],["Paraguay","Australia"]] },
+  { nombre:"Grupo E", equipos:["Alemania","Curazao","Costa de Marfil","Ecuador"], partidos:[["Alemania","Curazao"],["Costa de Marfil","Ecuador"],["Alemania","Costa de Marfil"],["Ecuador","Curazao"],["Curazao","Costa de Marfil"],["Ecuador","Alemania"]] },
+  { nombre:"Grupo F", equipos:["Países Bajos","Japón","Suecia","Túnez"], partidos:[["Países Bajos","Japón"],["Suecia","Túnez"],["Países Bajos","Suecia"],["Japón","Túnez"],["Japón","Suecia"],["Túnez","Países Bajos"]] },
+  { nombre:"Grupo G", equipos:["Bélgica","Egipto","Irán","Nueva Zelanda"], partidos:[["Bélgica","Egipto"],["Irán","Nueva Zelanda"],["Bélgica","Irán"],["Nueva Zelanda","Egipto"],["Egipto","Irán"],["Nueva Zelanda","Bélgica"]] },
+  { nombre:"Grupo H", equipos:["España","Cabo Verde","Arabia Saudita","Uruguay"], partidos:[["España","Cabo Verde"],["Arabia Saudita","Uruguay"],["España","Arabia Saudita"],["Uruguay","Cabo Verde"],["Cabo Verde","Arabia Saudita"],["Uruguay","España"]] },
+  { nombre:"Grupo I", equipos:["Francia","Senegal","Irak","Noruega"], partidos:[["Francia","Senegal"],["Irak","Noruega"],["Francia","Irak"],["Noruega","Senegal"],["Noruega","Francia"],["Senegal","Irak"]] },
+  { nombre:"Grupo J", equipos:["Argentina","Argelia","Austria","Jordania"], partidos:[["Argentina","Argelia"],["Austria","Jordania"],["Argentina","Austria"],["Jordania","Argelia"],["Argelia","Austria"],["Jordania","Argentina"]] },
+  { nombre:"Grupo K", equipos:["Portugal","R.D. Congo","Uzbekistán","Colombia"], partidos:[["Portugal","R.D. Congo"],["Uzbekistán","Colombia"],["Portugal","Uzbekistán"],["Colombia","R.D. Congo"],["Colombia","Portugal"],["R.D. Congo","Uzbekistán"]] },
+  { nombre:"Grupo L", equipos:["Inglaterra","Croacia","Ghana","Panamá"], partidos:[["Inglaterra","Croacia"],["Ghana","Panamá"],["Inglaterra","Ghana"],["Panamá","Croacia"],["Panamá","Inglaterra"],["Croacia","Ghana"]] },
 ];
 
 const FASES_ELIM = [
