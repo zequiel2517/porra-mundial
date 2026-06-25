@@ -90,6 +90,10 @@
     ⚽ Fase de grupos
   </label>
   <label class="check-label">
+    <input type="checkbox" id="chk-r2" checked onchange="renderTabla()">
+    📊 Orden de Grupo
+  </label>
+  <label class="check-label">
     <input type="checkbox" id="chk-elim" checked onchange="renderTabla()">
     🏆 Eliminatorias
   </label>
@@ -133,6 +137,23 @@ const FASES_ELIM = [
 // Banderas
 const FLAGS = {"México":"🇲🇽","Sudáfrica":"🇿🇦","Corea del Sur":"🇰🇷","Rep. Checa":"🇨🇿","Canadá":"🇨🇦","Bosnia y Herz.":"🇧🇦","Catar":"🇶🇦","Suiza":"🇨🇭","Brasil":"🇧🇷","Marruecos":"🇲🇦","Haití":"🇭🇹","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿","Estados Unidos":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Turquía":"🇹🇷","Alemania":"🇩🇪","Curazao":"🇨🇼","Costa de Marfil":"🇨🇮","Ecuador":"🇪🇨","Países Bajos":"🇳🇱","Japón":"🇯🇵","Suecia":"🇸🇪","Túnez":"🇹🇳","Bélgica":"🇧🇪","Egipto":"🇪🇬","Irán":"🇮🇷","Nueva Zelanda":"🇳🇿","España":"🇪🇸","Cabo Verde":"🇨🇻","Arabia Saudita":"🇸🇦","Uruguay":"🇺🇾","Francia":"🇫🇷","Senegal":"🇸🇳","Irak":"🇮🇶","Noruega":"🇳🇴","Argentina":"🇦🇷","Argelia":"🇩🇿","Austria":"🇦🇹","Jordania":"🇯🇴","Portugal":"🇵🇹","R.D. Congo":"🇨🇩","Uzbekistán":"🇺🇿","Colombia":"🇨🇴","Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croacia":"🇭🇷","Ghana":"🇬🇭","Panamá":"🇵🇦"};
 const F = eq => FLAGS[eq]||'🏳';
+
+function calcStatsGrupo(gi, resultadosArr) {
+  const g = GRUPOS[gi], stats = {};
+  g.equipos.forEach(e => { stats[e]={pj:0,pg:0,pe:0,pp:0,gf:0,gc:0,pts:0}; });
+  (resultadosArr[gi]||[]).forEach((r,pi) => {
+    if(r.local===null||r.visitante===null) return;
+    const [loc,vis]=g.partidos[pi],el=stats[loc],ev=stats[vis],gl=r.local,gv=r.visitante;
+    el.pj++;ev.pj++;el.gf+=gl;el.gc+=gv;ev.gf+=gv;ev.gc+=gl;
+    if(gl>gv){el.pg++;el.pts+=3;ev.pp++;}else if(gl<gv){ev.pg++;ev.pts+=3;el.pp++;}else{el.pe++;ev.pe++;el.pts++;ev.pts++;}
+  });
+  return stats;
+}
+
+function ordenGrupo(gi, resultadosArr) {
+  const stats = calcStatsGrupo(gi, resultadosArr);
+  return [...GRUPOS[gi].equipos].sort((a,b)=>(stats[b].pts-stats[a].pts)||(stats[b].gf-stats[b].gc-(stats[a].gf-stats[a].gc))||stats[b].gf-stats[a].gf);
+}
 
 function ganadorCruce(est) {
   if(!est||est.gl===null||est.gv===null) return null;
@@ -296,10 +317,11 @@ function renderTabla() {
   if(!globalData) return;
   const { jugadores, real, reglas, miId, crucesReal, posReal, pronPosPorUser, eliminadaReal } = globalData;
   const mostrarGrupos = document.getElementById('chk-grupos').checked;
+  const mostrarR2     = document.getElementById('chk-r2').checked;
   const mostrarElim   = document.getElementById('chk-elim').checked;
 
   const mostrarR4 = document.getElementById('chk-r4')?.checked;
-  if(!mostrarGrupos && !mostrarElim && !mostrarR4) {
+  if(!mostrarGrupos && !mostrarR2 && !mostrarElim && !mostrarR4) {
     document.getElementById('contenido').innerHTML = '<div class="loading-txt">Selecciona al menos una sección.</div>';
     return;
   }
@@ -349,6 +371,43 @@ function renderTabla() {
           html += `<td class="td-pron">
             <div class="pron-linea">${F(par[0])} ${rp.local}<span class="sep">-</span>${rp.visitante} ${F(par[1])} ${pts!==null?`<span class="pron-pts ${cls}">${pts>0?'+':''}${pts}</span>`:''}</div>
           </td>`;
+        });
+        html += '</tr>';
+      });
+    });
+  }
+
+  // ── ORDEN DE GRUPO (R2) ──
+  if(mostrarR2) {
+    html += `<tr class="tr-grupo-header"><td class="td-partido tr-grupo-header">📊 Orden de Grupo (R2)</td>`;
+    jugadores.forEach(() => { html += '<td></td>'; });
+    html += '</tr>';
+
+    GRUPOS.forEach((g, gi) => {
+      const resReal = real?.resultados?.[gi] || [];
+      const grupoCompleto = resReal.length>0 && resReal.every(r => r.local!==null && r.visitante!==null);
+
+      html += `<tr class="tr-grupo-header"><td class="td-partido tr-grupo-header" style="padding-left:16px">${g.nombre}${grupoCompleto?'':' (sin terminar)'}</td>`;
+      jugadores.forEach(() => { html += '<td></td>'; });
+      html += '</tr>';
+
+      if(!grupoCompleto) return;
+
+      const ordenR = ordenGrupo(gi, real.resultados);
+      const cfg2 = reglas.r2 || {posicion:3};
+
+      ['1º','2º','3º','4º'].forEach((label, pos) => {
+        const eqReal = ordenR[pos];
+        html += `<tr>`;
+        html += `<td class="td-partido"><div class="partido-real"><span style="font-weight:700">${label}</span> <span>${F(eqReal)}</span> <span style="font-size:11px">${eqReal}</span></div></td>`;
+
+        jugadores.forEach(j => {
+          const ordenP = ordenGrupo(gi, j.datos?.resultados||[]);
+          const eqP = ordenP[pos];
+          const acierto = eqP === eqReal;
+          const pts = acierto ? (cfg2.posicion||3) : 0;
+          const cls = acierto ? 'pts-3' : 'pts-0';
+          html += `<td class="td-pron"><div class="pron-linea">${F(eqP)} ${eqP} <span class="pron-pts ${cls}">${pts>0?'+':''}${pts}</span></div></td>`;
         });
         html += '</tr>';
       });
