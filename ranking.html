@@ -41,7 +41,7 @@
     /* TABLA */
     .ranking-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
     .ranking-cabecera { padding: 10px 14px; background: #f8fafc; border-bottom: 0.5px solid var(--border); font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; display: flex; justify-content: space-between; align-items: center; }
-    .ranking-fila { display: grid; grid-template-columns: 28px 1fr 48px 48px 48px 48px 52px; align-items: center; padding: 10px 14px; border-bottom: 0.5px solid var(--border); gap: 4px; }
+    .ranking-fila { display: grid; grid-template-columns: 28px minmax(0,1fr) 48px 48px 48px 48px 52px; align-items: center; padding: 10px 14px; border-bottom: 0.5px solid var(--border); gap: 4px; }
     .ranking-fila:last-child { border-bottom: none; }
     .ranking-fila.yo { background: #EFF6FF; }
     .ranking-fila.primero { background: #FFFBEB; }
@@ -49,7 +49,7 @@
     .r-pos.oro { color: #CA8A04; }
     .r-pos.plata { color: #6B7280; }
     .r-pos.bronce { color: #92400E; }
-    .r-nombre { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .r-nombre { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
     .r-yo { font-size: 9px; color: var(--blue); background: #EFF6FF; border-radius: 3px; padding: 1px 4px; }
     .r-pts { font-size: 13px; font-weight: 700; color: var(--text); text-align: right; }
     .r-sub { font-size: 10px; color: var(--text3); text-align: center; }

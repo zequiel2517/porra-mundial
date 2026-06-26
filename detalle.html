@@ -276,8 +276,8 @@ async function cargar() {
             if(r.local>r.visitante)stats[loc].pts+=3;else if(r.local<r.visitante)stats[vis].pts+=3;else{stats[loc].pts++;stats[vis].pts++;}
           });
           calcS(datos.resultados?.[gi]||[],statsP);calcS(resReal,statsR);
-          const ordP=[...g.equipos].sort((a,b)=>(statsP[b].pts-statsP[a].pts)||statsP[b].gf-statsP[a].gf);
-          const ordR=[...g.equipos].sort((a,b)=>(statsR[b].pts-statsR[a].pts)||statsR[b].gf-statsR[a].gf);
+          const ordP=[...g.equipos].sort((a,b)=>(statsP[b].pts-statsP[a].pts)||(statsP[b].gf-statsP[b].gc-(statsP[a].gf-statsP[a].gc))||statsP[b].gf-statsP[a].gf);
+          const ordR=[...g.equipos].sort((a,b)=>(statsR[b].pts-statsR[a].pts)||(statsR[b].gf-statsR[b].gc-(statsR[a].gf-statsR[a].gc))||statsR[b].gf-statsR[a].gf);
           ordP.forEach((eq,pos)=>{if(ordR[pos]===eq)r2+=cfg2.posicion||3;});
         }
       });
