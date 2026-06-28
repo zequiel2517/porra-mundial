@@ -205,11 +205,14 @@ function ptsR3Cruce(ep, cr, cfg) {
   let pts = 0;
   const lP=ep.local, vP=ep.vis, lR=cr.local, vR=cr.vis;
   const mismosEq = lP&&vP&&lR&&vR&&((lP===lR&&vP===vR)||(lP===vR&&vP===lR));
-  if(mismosEq) pts += cfg.emparej||5;
+  if(!mismosEq) return 0; // Sin emparejamiento correcto, no puntúa nada en R3
+  pts += cfg.emparej||5;
   const ganR = cr.gl>cr.gv?cr.local:cr.gv>cr.gl?cr.vis:cr.elegido==='local'?cr.local:cr.vis;
   const ganP = ep.gl>ep.gv?ep.local:ep.gv>ep.gl?ep.vis:ep.elegido==='local'?ep.local:ep.vis;
-  if(mismosEq&&ganR&&ganP&&ganR===ganP) pts += cfg.ganador||1;
-  if(ep.gl===cr.gl&&ep.gv===cr.gv) pts += cfg.exacto||3;
+  if(ganR&&ganP&&ganR===ganP) pts += cfg.ganador||1;
+  // Marcador exacto: si los equipos están invertidos (local/visitante), comparar cruzado
+  const mismoOrden = lP===lR&&vP===vR;
+  if(mismoOrden ? (ep.gl===cr.gl&&ep.gv===cr.gv) : (ep.gl===cr.gv&&ep.gv===cr.gl)) pts += cfg.exacto||3;
   return pts;
 }
 
@@ -446,9 +449,15 @@ function renderTabla() {
           if(sinPron) { html += `<td class="td-pron"><span class="pron-vacio">–</span></td>`; return; }
 
           const lEqP = ep?.local||'?', vEqP = ep?.vis||'?';
-          // Buscar el cruce real correspondiente por equipos
-          const crReal = crucesReal.find(cr => cr.fase===fase.key && cr.indice===i);
-          const pts = (!crReal||crReal.gl===null) ? null : ptsR3Cruce(ep, crReal, reglas.r3||{emparej:5,ganador:1,exacto:3});
+          // Buscar el cruce real correspondiente: mismos equipos en la misma fase (no por índice)
+          const crReal = crucesReal.find(cr => {
+            if(cr.fase !== fase.key) return false;
+            const lR=cr.local, vR=cr.vis;
+            return lEqP && vEqP && lR && vR && ((lEqP===lR&&vEqP===vR)||(lEqP===vR&&vEqP===lR));
+          });
+          // ¿La fase ya tiene algún resultado real jugado? (para distinguir "sin datos" de "0 puntos")
+          const faseConDatos = crucesReal.some(cr => cr.fase===fase.key && cr.gl!==null && cr.gv!==null);
+          const pts = !faseConDatos ? null : (crReal ? ptsR3Cruce(ep, crReal, reglas.r3||{emparej:5,ganador:1,exacto:3}) : 0);
           const maxPts = (reglas.r3?.emparej||5)+(reglas.r3?.ganador||1)+(reglas.r3?.exacto||3);
           const cls = pts===null?'pts-0':pts===maxPts?`pts-${maxPts}`:pts>=(reglas.r3?.emparej||5)?'pts-6':pts>0?'pts-5':'pts-0';
 

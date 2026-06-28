@@ -390,8 +390,9 @@ function calcPuntos(pron, real, reglas, crucesReal, posReal, posPronBD, eliminad
         const ganR = cr.gl>cr.gv?cr.local:cr.gv>cr.gl?cr.vis:cr.elegido==='local'?cr.local:cr.vis;
         const ganP = ep.gl>ep.gv?ep.local:ep.gv>ep.gl?ep.vis:ep.elegido==='local'?ep.local:ep.vis;
         if(ganR&&ganP&&ganR===ganP) r3 += config.r3.ganador||1;
-        // Marcador exacto
-        if(ep.gl===cr.gl&&ep.gv===cr.gv) r3 += config.r3.exacto||3;
+        // Marcador exacto (considerar si local/visitante están invertidos respecto al real)
+        const mismoOrden = ep.local===cr.local && ep.vis===cr.vis;
+        if(mismoOrden ? (ep.gl===cr.gl&&ep.gv===cr.gv) : (ep.gl===cr.gv&&ep.gv===cr.gl)) r3 += config.r3.exacto||3;
       }
     });
   }
