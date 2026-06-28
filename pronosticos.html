@@ -291,6 +291,9 @@ let posicionesPronostico = {};
 let hayPendiente = false;
 
 let estadoTorneo = 'abierto';
+// Bloqueo parcial: una vez jugada una fase, no se puede modificar (evita pronósticos "a posteriori")
+const FASE_GRUPOS_BLOQUEADA = true;
+const FASE_D16_BLOQUEADA = true;
 
 async function cargarEstadoTorneo() {
   try {
@@ -653,11 +656,23 @@ function buildCrucesD16(){
   return [...f2,...f12,...vars].sort((a,b)=>+a.pnum.slice(1)-+b.pnum.slice(1));
 }
 function ganadoresD16(){const c=buildCrucesD16();return c.map((cr,i)=>{const est=estadoFase.d16[i]||estadoFase.d16[String(i)],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:(cr.vis||{eq:'?',gi:-1});});}
-function buildCrucesOct(){const g=ganadoresD16();return Array.from({length:8},(_,i)=>({pnum:`P${89+i}`,local:g[i*2],vis:g[i*2+1]}));}
+function buildCrucesOct(){
+  const g=ganadoresD16();
+  const OCT_PAIRS=[[1,4],[0,2],[3,5],[6,7],[10,11],[8,9],[13,15],[12,14]];
+  return OCT_PAIRS.map(([a,b],i)=>({pnum:`P${89+i}`,local:g[a],vis:g[b]}));
+}
 function ganadoresOct(){const c=buildCrucesOct();return c.map((cr,i)=>{const est=estadoFase.oct[i]||estadoFase.oct[String(i)],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
-function buildCrucesQtr(){const g=ganadoresOct();return Array.from({length:4},(_,i)=>({pnum:`P${97+i}`,local:g[i*2],vis:g[i*2+1]}));}
+function buildCrucesQtr(){
+  const g=ganadoresOct();
+  const QTR_PAIRS=[[0,1],[4,5],[2,3],[6,7]];
+  return QTR_PAIRS.map(([a,b],i)=>({pnum:`P${97+i}`,local:g[a],vis:g[b]}));
+}
 function ganadoresQtr(){const c=buildCrucesQtr();return c.map((cr,i)=>{const est=estadoFase.qtr[i]||estadoFase.qtr[String(i)],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
-function buildCrucesSemi(){const g=ganadoresQtr();return Array.from({length:2},(_,i)=>({pnum:`P${101+i}`,local:g[i*2],vis:g[i*2+1]}));}
+function buildCrucesSemi(){
+  const g=ganadoresQtr();
+  const SEMI_PAIRS=[[0,1],[2,3]];
+  return SEMI_PAIRS.map(([a,b],i)=>({pnum:`P${101+i}`,local:g[a],vis:g[b]}));
+}
 function ganadoresSemi(){const c=buildCrucesSemi();return c.map((cr,i)=>{const est=estadoFase.semi[i]||estadoFase.semi[String(i)],lado=ganadorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
 function perdedoresSemi(){const c=buildCrucesSemi();return c.map((cr,i)=>{const est=estadoFase.semi[i]||estadoFase.semi[String(i)],lado=perdedorCruce(est);if(!lado)return{eq:'?',gi:-1};return lado==='local'?cr.local:cr.vis;});}
 function buildCrucesTercer(){const p=perdedoresSemi();return [{pnum:'P3/4',local:p[0],vis:p[1]}];}
@@ -940,6 +955,7 @@ let bsCtx = null; // {gi, pi, tipo:'grupos'|'elim', fase, idx}
 
 function abrirBS(gi, pi, localEq, visEq, glActual, gvActual) {
   if(estadoTorneo !== 'abierto') return;
+  if(FASE_GRUPOS_BLOQUEADA) { alert('La fase de grupos ya ha finalizado y no se puede modificar.'); return; }
   bsCtx = {gi, pi};
   document.getElementById('bs-titulo').textContent = `${localEq} vs ${visEq}`;
   actualizarBSDisplay(glActual, gvActual);
@@ -951,6 +967,7 @@ function abrirBS(gi, pi, localEq, visEq, glActual, gvActual) {
 
 function abrirBSElim(faseKey, cruceidx, localEq, visEq, glActual, gvActual) {
   if(estadoTorneo !== 'abierto') return;
+  if(faseKey==='d16' && FASE_D16_BLOQUEADA) { alert('La fase de Dieciseisavos ya ha finalizado y no se puede modificar.'); return; }
   bsCtx = {faseKey, cruceidx, tipo:'elim', localEq, visEq};
   document.getElementById('bs-titulo').textContent = `${localEq} vs ${visEq}`;
   actualizarBSDisplay(glActual, gvActual);

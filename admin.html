@@ -710,9 +710,21 @@ function getCruces(faseKey) {
     return lado==='local'?cr[i].local:(cr[i].vis||{eq:'?',gi:-1}); 
   };
   if(faseKey==='d16') return buildCrucesD16();
-  if(faseKey==='oct') return Array.from({length:8},(_,i)=>({pnum:`P${89+i}`,local:gan('d16',i*2),vis:gan('d16',i*2+1)}));
-  if(faseKey==='qtr') return Array.from({length:4},(_,i)=>({pnum:`P${97+i}`,local:gan('oct',i*2),vis:gan('oct',i*2+1)}));
-  if(faseKey==='semi') return Array.from({length:2},(_,i)=>({pnum:`P${101+i}`,local:gan('qtr',i*2),vis:gan('qtr',i*2+1)}));
+  if(faseKey==='oct') {
+    // Bracket oficial FIFA 2026 (verificado): M89=d16[1]vs[4], M90=d16[0]vs[2], etc.
+    const OCT_PAIRS = [[1,4],[0,2],[3,5],[6,7],[10,11],[8,9],[13,15],[12,14]];
+    return OCT_PAIRS.map(([a,b],i)=>({pnum:`P${89+i}`,local:gan('d16',a),vis:gan('d16',b)}));
+  }
+  if(faseKey==='qtr') {
+    // M97=oct[0]vs[1], M98=oct[4]vs[5], M99=oct[2]vs[3], M100=oct[6]vs[7]
+    const QTR_PAIRS = [[0,1],[4,5],[2,3],[6,7]];
+    return QTR_PAIRS.map(([a,b],i)=>({pnum:`P${97+i}`,local:gan('oct',a),vis:gan('oct',b)}));
+  }
+  if(faseKey==='semi') {
+    // M101=qtr[0]vs[1], M102=qtr[2]vs[3]
+    const SEMI_PAIRS = [[0,1],[2,3]];
+    return SEMI_PAIRS.map(([a,b],i)=>({pnum:`P${101+i}`,local:gan('qtr',a),vis:gan('qtr',b)}));
+  }
   if(faseKey==='tercer') {
     const per=(fase,i)=>{ 
       const est=estadoFase[fase]?.[i]; 
