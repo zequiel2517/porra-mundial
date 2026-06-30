@@ -799,6 +799,7 @@ function renderCruces(containerId,cruces,estadoObj,faseKey,etiqFn){
   });
 }
 function clickElim(faseKey,i,lado){
+  if(faseKey==='d16' && FASE_D16_BLOQUEADA) { alert('La fase de Dieciseisavos ya ha finalizado y no se puede modificar.'); return; }
   if(!estadoFase[faseKey][i])return;
   const {gl,gv}=estadoFase[faseKey][i];
   if(gl===null||gv===null||gl!==gv)return;
