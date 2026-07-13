@@ -790,10 +790,10 @@ function renderFaseElim(faseKey) {
             <input class="cruce-score" type="number" min="0" max="30" value="${gv!==null?gv:''}" placeholder="–" data-fase="${faseKey}" data-idx="${i}" data-lado="vis" readonly style="cursor:pointer;pointer-events:none">
           </div>
         </div>
-        <div class="cruce-eq vis ${clV}" onclick="${esVar?'':("clickElim('"+faseKey+"',"+i+",'visitante')")}">
+        <div class="cruce-eq vis ${clV}" onclick="clickElim('${faseKey}',${i},'visitante')">
           <span class="ceq-label">${cr.pnum}${esVar?' 3º':''}</span>
           ${selectHTML}
-          ${!esVar?`<span class="ceq-nombre"><span class="bf">${getFlagFor(vEq)}</span>${vEq}</span>`:''}
+          ${esVar?`<span class="ceq-nombre" onclick="event.stopPropagation();clickElim('${faseKey}',${i},'visitante')" style="cursor:pointer"><span class="bf">${getFlagFor(vEq)}</span>${vEq}</span>`:`<span class="ceq-nombre"><span class="bf">${getFlagFor(vEq)}</span>${vEq}</span>`}
         </div>
       </div>
       <div class="empate-hint${esEmp&&!est.elegido?' visible':''}" id="hint-${faseKey}-${i}">Empate — toca el equipo que pasa</div>
