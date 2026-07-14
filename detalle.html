@@ -295,7 +295,7 @@ async function cargar() {
       let r4 = 0;
       const posP = pronPosPorUser[p.user_id] || {};
       const tabla = reglas.r4?.tabla;
-      const POS_IDX = {'1':0,'2':1,'3':2,'4':3,'SEMI':4,'QTR':4,'OCT':5,'D16':6,'G':7};
+      const POS_IDX = {'1':0,'2':1,'3':2,'4':3,'FINAL':3,'SEMI':4,'QTR':4,'C':4,'OCT':5,'O':5,'D16':6,'D':6,'G':7};
       if(tabla && Object.keys(posReal).length > 0) {
         GRUPOS.forEach(g => g.equipos.forEach(eq => {
           if(!eliminadaReal?.[eq]) return; // no eliminado aún
@@ -551,7 +551,7 @@ function renderTabla() {
       return pos;
     };
 
-    const POS_IDX = {'1':0,'2':1,'3':2,'4':3,'FINAL':4,'SEMI':5,'QTR':6,'C':6,'OCT':7,'O':7,'D16':8,'D':8,'G':9};
+    const POS_IDX = {'1':0,'2':1,'3':2,'4':3,'FINAL':3.5,'SEMI':4.5,'QTR':5,'C':5,'OCT':6,'O':6,'D16':7,'D':7,'G':8};
     const POS_LABEL = {'1':'Campeón','2':'Subcampeón','3':'3er Puesto','4':'4º Puesto','SEMI':'Semifinal','QTR':'Cuartos de Final','C':'Cuartos de Final','FINAL':'Final','OCT':'Octavos','O':'Octavos','D16':'Dieciseisavos','D':'Dieciseisavos','G':'Fase de Grupos'};
     const tabla_r4 = [[36,28,18,10,6,0,0,0],[28,32,16,10,6,0,0,0],[12,24,28,20,14,6,0,0],[0,10,20,24,12,6,0,0],[0,0,8,16,20,10,4,0],[0,0,0,6,12,16,8,2],[0,0,0,0,4,8,12,6],[0,0,0,0,0,2,4,8]];
 
@@ -591,8 +591,10 @@ function renderTabla() {
 
       posJugadores.forEach((posJ, ji) => {
         const posP = posJ[eq] || 'G';
-        const ri = POS_IDX[pos] ?? 7;
-        const pi = POS_IDX[posP] ?? 7;
+        // Para puntuación, usar índices enteros de la tabla R4 (0-7)
+        const PTS_IDX = {'1':0,'2':1,'3':2,'4':3,'FINAL':3,'SEMI':4,'QTR':4,'C':4,'OCT':5,'O':5,'D16':6,'D':6,'G':7};
+        const ri = PTS_IDX[pos] ?? 7;
+        const pi = PTS_IDX[posP] ?? 7;
         const pts = tabla_r4[pi]?.[ri] ?? 0;
         const maxPts = tabla_r4[ri]?.[ri] ?? 0;
         const cls = pts === maxPts ? 'pts-4' : pts > 0 ? 'pts-1' : 'pts-0';
